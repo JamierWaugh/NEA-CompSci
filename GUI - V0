@@ -1,0 +1,95 @@
+import pygame
+import CheckersAI
+pygame.init()
+SCREEN_WIDTH = 600
+SCREEN_HEIGHT = 600
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Checkers")
+run = True
+ # take after double take crash
+
+RED = (255, 0 , 0)
+WHITE = (255,255,255)
+LBROWN = (222,184,135)
+DBROWN = (85,51,17)
+BLACK = (0,0,0)
+
+def clear(): # Draws every single square on the board, alternating between brown & light brown
+    pygame.draw.rect(screen,DBROWN,a1)
+    pygame.draw.rect(screen,LBROWN,a2)
+    pygame.draw.rect(screen,DBROWN,a3)
+    pygame.draw.rect(screen,LBROWN,a4)
+    pygame.draw.rect(screen,DBROWN,a5)
+    pygame.draw.rect(screen,LBROWN,a6)
+    pygame.draw.rect(screen,DBROWN,a7)
+    pygame.draw.rect(screen,LBROWN,a8)
+
+    pygame.draw.rect(screen,LBROWN,b1)
+    pygame.draw.rect(screen,DBROWN,b2)
+    pygame.draw.rect(screen,LBROWN,b3)
+    pygame.draw.rect(screen,DBROWN,b4)
+    pygame.draw.rect(screen,LBROWN,b5)
+    pygame.draw.rect(screen,DBROWN,b6)
+    pygame.draw.rect(screen,LBROWN,b7)
+    pygame.draw.rect(screen,DBROWN,b8)
+
+    pygame.draw.rect(screen,DBROWN,c1)
+    pygame.draw.rect(screen,LBROWN,c2)
+    pygame.draw.rect(screen,DBROWN,c3)
+    pygame.draw.rect(screen,LBROWN,c4)
+    pygame.draw.rect(screen,DBROWN,c5)
+    pygame.draw.rect(screen,LBROWN,c6)
+    pygame.draw.rect(screen,DBROWN,c7)
+    pygame.draw.rect(screen,LBROWN,c8)
+
+    pygame.draw.rect(screen,LBROWN,d1)
+    pygame.draw.rect(screen,DBROWN,d2)
+    pygame.draw.rect(screen,LBROWN,d3)
+    pygame.draw.rect(screen,DBROWN,d4)
+    pygame.draw.rect(screen,LBROWN,d5)
+    pygame.draw.rect(screen,DBROWN,d6)
+    pygame.draw.rect(screen,LBROWN,d7)
+    pygame.draw.rect(screen,DBROWN,d8)
+
+    pygame.draw.rect(screen,DBROWN,e1)
+    pygame.draw.rect(screen,LBROWN,e2)
+    pygame.draw.rect(screen,DBROWN,e3)
+    pygame.draw.rect(screen,LBROWN,e4)
+    pygame.draw.rect(screen,DBROWN,e5)
+    pygame.draw.rect(screen,LBROWN,e6)
+    pygame.draw.rect(screen,DBROWN,e7)
+    pygame.draw.rect(screen,LBROWN,e8)
+
+    pygame.draw.rect(screen,LBROWN,f1)
+    pygame.draw.rect(screen,DBROWN,f2)
+    pygame.draw.rect(screen,LBROWN,f3)
+    pygame.draw.rect(screen,DBROWN,f4)
+    pygame.draw.rect(screen,LBROWN,f5)
+    pygame.draw.rect(screen,DBROWN,f6)
+    pygame.draw.rect(screen,LBROWN,f7)
+    pygame.draw.rect(screen,DBROWN,f8)
+
+    pygame.draw.rect(screen,DBROWN,g1)
+    pygame.draw.rect(screen,LBROWN,g2)
+    pygame.draw.rect(screen,DBROWN,g3)
+    pygame.draw.rect(screen,LBROWN,g4)
+    pygame.draw.rect(screen,DBROWN,g5)
+    pygame.draw.rect(screen,LBROWN,g6)
+    pygame.draw.rect(screen,DBROWN,g7)
+    pygame.draw.rect(screen,LBROWN,g8)
+
+    pygame.draw.rect(screen,LBROWN,h1)
+    pygame.draw.rect(screen,DBROWN,h2)
+    pygame.draw.rect(screen,LBROWN,h3)
+    pygame.draw.rect(screen,DBROWN,h4)
+    pygame.draw.rect(screen,LBROWN,h5)
+    pygame.draw.rect(screen,DBROWN,h6)
+    pygame.draw.rect(screen,LBROWN,h7)
+    pygame.draw.rect(screen,DBROWN,h8)
+
+while run:
+    clear() 
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+    pygame.display.update()

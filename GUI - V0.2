@@ -1,0 +1,130 @@
+import pygame
+import CheckersAI
+pygame.init()
+SCREEN_WIDTH = 600
+SCREEN_HEIGHT = 600
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Checkers")
+run = True
+
+board = [a1,a2,a3,a4,a5,a6,a7,a8,b1,b2,b3,b4,b5,b6,b7,b8,c1,c2,c3,c4,c5,c6,c7,c8,d1,d2,d3,d4,d5,d6,d7,d8,e1,e2,e3,e4,e5,e6,e7,e8,f1,f2,f3,f4,f5,f6,f7,f8,g1,g2,g3,g4,g5,g6,g7,g8,h1,h2,h3,h4,h5,h6,h7,h8]
+
+board_to_coord = {"[<rect(0, 0, 75, 75)>]": "a1", "[<rect(0, 75, 75, 75)>]": "a2", "[<rect(0, 150, 75, 75)>]": "a3", "[<rect(0, 225, 75, 75)>]": "a4", "[<rect(0, 300, 75, 75)>]": "a5", "[<rect(0, 375, 75, 75)>]": "a6", "[<rect(0, 450, 75, 75)>]": "a7", "[<rect(0, 525, 75, 75)>]": "a8","[<rect(75, 0, 75, 75)>]": "b1", "[<rect(75, 75, 75, 75)>]": "b2", "[<rect(75, 150, 75, 75)>]": "b3", "[<rect(75, 225, 75, 75)>]": "b4", "[<rect(75, 300, 75, 75)>]": "b5", "[<rect(75, 375, 75, 75)>]": "b6", "[<rect(75, 450, 75, 75)>]": "b7", "[<rect(75, 525, 75, 75)>]": "b8", "[<rect(150, 0, 75, 75)>]": "c1", "[<rect(150, 75, 75, 75)>]": "c2", "[<rect(150, 150, 75, 75)>]": "c3", "[<rect(150, 225, 75, 75)>]": "c4", "[<rect(150, 300, 75, 75)>]": "c5", "[<rect(150, 375, 75, 75)>]": "c6", "[<rect(150, 450, 75, 75)>]": "c7", "[<rect(150, 525, 75, 75)>]": "c8", "[<rect(225, 0, 75, 75)>]": "d1", "[<rect(225, 75, 75, 75)>]": "d2", "[<rect(225, 150, 75, 75)>]": "d3", "[<rect(225, 225, 75, 75)>]": "d4", "[<rect(225, 300, 75, 75)>]": "d5", "[<rect(225, 375, 75, 75)>]": "d6", "[<rect(225, 450, 75, 75)>]": "d7", "[<rect(225, 525, 75, 75)>]": "d8", "[<rect(300, 0, 75, 75)>]": "e1", "[<rect(300, 75, 75, 75)>]": "e2", "[<rect(300, 150, 75, 75)>]": "e3", "[<rect(300, 225, 75, 75)>]": "e4", "[<rect(300, 300, 75, 75)>]": "e5", "[<rect(300, 375, 75, 75)>]": "e6", "[<rect(300, 450, 75, 75)>]": "e7", "[<rect(300, 525, 75, 75)>]": "e8", "[<rect(375, 0, 75, 75)>]": "f1", "[<rect(375, 75, 75, 75)>]": "f2", "[<rect(375, 150, 75, 75)>]": "f3", "[<rect(375, 225, 75, 75)>]": "f4", "[<rect(375, 300, 75, 75)>]": "f5", "[<rect(375, 375, 75, 75)>]": "f6", "[<rect(375, 450, 75, 75)>]": "f7", "[<rect(375, 525, 75, 75)>]": "f8", "[<rect(450, 0, 75, 75)>]": "g1", "[<rect(450, 75, 75, 75)>]": "g2", "[<rect(450, 150, 75, 75)>]": "g3", "[<rect(450, 225, 75, 75)>]": "g4", "[<rect(450, 300, 75, 75)>]": "g5", "[<rect(450, 375, 75, 75)>]": "g6", "[<rect(450, 450, 75, 75)>]": "g7", "[<rect(450, 525, 75, 75)>]": "g8", "[<rect(525, 0, 75, 75)>]": "h1", "[<rect(525, 75, 75, 75)>]": "h2", "[<rect(525, 150, 75, 75)>]": "h3", "[<rect(525, 225, 75, 75)>]": "h4", "[<rect(525, 300, 75, 75)>]": "h5", "[<rect(525, 375, 75, 75)>]": "h6", "[<rect(525, 450, 75, 75)>]": "h7", "[<rect(525, 525, 75, 75)>]": "h8"}
+coord_to_board = {value: key for key, value in board_to_coord.items()} # flips the whole dictionary
+white_pieces = [w1,w2,w3,w4,w5,w6,w7,w8,w9,w10,w11,w12]
+black_pieces = [bl1,bl2,bl3,bl4,bl5,bl6,bl7,bl8,bl9,bl10,bl11,bl12]
+Board = [
+    [0,1,0,1,0,1,0,1],
+    [1,0,1,0,1,0,1,0],
+    [0,1,0,1,0,1,0,1],
+    [0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0],
+    [2,0,2,0,2,0,2,0],
+    [0,2,0,2,0,2,0,2],
+    [2,0,2,0,2,0,2,0]]
+
+spriteBoard = [
+    [a1,b1,c1,d1,e1,f1,g1,h1],
+    [a2,b2,c2,d2,e2,f2,g2,h2],
+    [a3,b3,c3,d3,e3,f3,g3,h3],
+    [a4,b4,c4,d4,e4,f4,g4,h4],
+    [a5,b5,c5,d5,e5,f5,g5,h5],
+    [a6,b6,c6,d6,e6,f6,g6,h6],
+    [a7,b7,c7,d7,e7,f7,g7,h7],
+    [a8,b8,c8,d8,e8,f8,g8,h8]]
+
+RED = (255, 0 , 0)
+WHITE = (255,255,255)
+LBROWN = (222,184,135)
+DBROWN = (85,51,17)
+BLACK = (0,0,0)
+
+def clear(): # Draws every single square on the board, alternating between brown & light brown
+    pygame.draw.rect(screen,DBROWN,a1)
+    pygame.draw.rect(screen,LBROWN,a2)
+    pygame.draw.rect(screen,DBROWN,a3)
+    pygame.draw.rect(screen,LBROWN,a4)
+    pygame.draw.rect(screen,DBROWN,a5)
+    pygame.draw.rect(screen,LBROWN,a6)
+    pygame.draw.rect(screen,DBROWN,a7)
+    pygame.draw.rect(screen,LBROWN,a8)
+
+    pygame.draw.rect(screen,LBROWN,b1)
+    pygame.draw.rect(screen,DBROWN,b2)
+    pygame.draw.rect(screen,LBROWN,b3)
+    pygame.draw.rect(screen,DBROWN,b4)
+    pygame.draw.rect(screen,LBROWN,b5)
+    pygame.draw.rect(screen,DBROWN,b6)
+    pygame.draw.rect(screen,LBROWN,b7)
+    pygame.draw.rect(screen,DBROWN,b8)
+
+    pygame.draw.rect(screen,DBROWN,c1)
+    pygame.draw.rect(screen,LBROWN,c2)
+    pygame.draw.rect(screen,DBROWN,c3)
+    pygame.draw.rect(screen,LBROWN,c4)
+    pygame.draw.rect(screen,DBROWN,c5)
+    pygame.draw.rect(screen,LBROWN,c6)
+    pygame.draw.rect(screen,DBROWN,c7)
+    pygame.draw.rect(screen,LBROWN,c8)
+
+    pygame.draw.rect(screen,LBROWN,d1)
+    pygame.draw.rect(screen,DBROWN,d2)
+    pygame.draw.rect(screen,LBROWN,d3)
+    pygame.draw.rect(screen,DBROWN,d4)
+    pygame.draw.rect(screen,LBROWN,d5)
+    pygame.draw.rect(screen,DBROWN,d6)
+    pygame.draw.rect(screen,LBROWN,d7)
+    pygame.draw.rect(screen,DBROWN,d8)
+
+    pygame.draw.rect(screen,DBROWN,e1)
+    pygame.draw.rect(screen,LBROWN,e2)
+    pygame.draw.rect(screen,DBROWN,e3)
+    pygame.draw.rect(screen,LBROWN,e4)
+    pygame.draw.rect(screen,DBROWN,e5)
+    pygame.draw.rect(screen,LBROWN,e6)
+    pygame.draw.rect(screen,DBROWN,e7)
+    pygame.draw.rect(screen,LBROWN,e8)
+
+    pygame.draw.rect(screen,LBROWN,f1)
+    pygame.draw.rect(screen,DBROWN,f2)
+    pygame.draw.rect(screen,LBROWN,f3)
+    pygame.draw.rect(screen,DBROWN,f4)
+    pygame.draw.rect(screen,LBROWN,f5)
+    pygame.draw.rect(screen,DBROWN,f6)
+    pygame.draw.rect(screen,LBROWN,f7)
+    pygame.draw.rect(screen,DBROWN,f8)
+
+    pygame.draw.rect(screen,DBROWN,g1)
+    pygame.draw.rect(screen,LBROWN,g2)
+    pygame.draw.rect(screen,DBROWN,g3)
+    pygame.draw.rect(screen,LBROWN,g4)
+    pygame.draw.rect(screen,DBROWN,g5)
+    pygame.draw.rect(screen,LBROWN,g6)
+    pygame.draw.rect(screen,DBROWN,g7)
+    pygame.draw.rect(screen,LBROWN,g8)
+
+    pygame.draw.rect(screen,LBROWN,h1)
+    pygame.draw.rect(screen,DBROWN,h2)
+    pygame.draw.rect(screen,LBROWN,h3)
+    pygame.draw.rect(screen,DBROWN,h4)
+    pygame.draw.rect(screen,LBROWN,h5)
+    pygame.draw.rect(screen,DBROWN,h6)
+    pygame.draw.rect(screen,LBROWN,h7)
+    pygame.draw.rect(screen,DBROWN,h8)
+    drawBoard(Board,spriteBoard)
+
+def drawBoard(Board,spriteBoard): # draws board
+    for i in range(len(Board)):
+        for j in range(len(Board[i])):
+            if Board[j][i] == 1:
+                location = spriteBoard[j][i]
+                pygame.draw.circle(screen, BLACK, (location[0]+37.5, location[1]+37.5), 28.125)
+            elif Board[j][i] == 2:
+                location = spriteBoard[j][i]
+                pygame.draw.circle(screen, WHITE, (location[0]+37.5, location[1]+37.5), 28.125)
+while run:
+    clear() 
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+    pygame.display.update()

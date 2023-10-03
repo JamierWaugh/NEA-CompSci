@@ -1,0 +1,389 @@
+import pygame
+import CheckersAI
+from copy import copy
+from copy import deepcopy
+pygame.init()
+SCREEN_WIDTH = 600
+SCREEN_HEIGHT = 600
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Checkers")
+run = True
+
+a1 = pygame.Rect((0,0,75,75))
+a2 = pygame.Rect((0,75,75,75))
+a3 = pygame.Rect((0,150,75,75))
+a4 = pygame.Rect((0,225,75,75))
+a5 = pygame.Rect((0,300,75,75))
+a6 = pygame.Rect((0,375,75,75))
+a7 = pygame.Rect((0,450,75,75))
+a8 = pygame.Rect((0,525,75,75))
+
+b1 = pygame.Rect((75,0,75,75))
+b2 = pygame.Rect((75,75,75,75))
+b3 = pygame.Rect((75,150,75,75))
+b4 = pygame.Rect((75,225,75,75))
+b5 = pygame.Rect((75,300,75,75))
+b6 = pygame.Rect((75,375,75,75))
+b7 = pygame.Rect((75,450,75,75))
+b8 = pygame.Rect((75,525,75,75))
+
+c1 = pygame.Rect((150,0,75,75))
+c2 = pygame.Rect((150,75,75,75))
+c3 = pygame.Rect((150,150,75,75))
+c4 = pygame.Rect((150,225,75,75))
+c5 = pygame.Rect((150,300,75,75))
+c6 = pygame.Rect((150,375,75,75))
+c7 = pygame.Rect((150,450,75,75))
+c8 = pygame.Rect((150,525,75,75))
+
+d1 = pygame.Rect((225,0,75,75))
+d2 = pygame.Rect((225,75,75,75))
+d3 = pygame.Rect((225,150,75,75))
+d4 = pygame.Rect((225,225,75,75))
+d5 = pygame.Rect((225,300,75,75))
+d6 = pygame.Rect((225,375,75,75))
+d7 = pygame.Rect((225,450,75,75))
+d8 = pygame.Rect((225,525,75,75))
+
+e1 = pygame.Rect((300,0,75,75))
+e2 = pygame.Rect((300,75,75,75))
+e3 = pygame.Rect((300,150,75,75))
+e4 = pygame.Rect((300,225,75,75))
+e5 = pygame.Rect((300,300,75,75))
+e6 = pygame.Rect((300,375,75,75))
+e7 = pygame.Rect((300,450,75,75))
+e8 = pygame.Rect((300,525,75,75))
+
+f1 = pygame.Rect((375,0,75,75))
+f2 = pygame.Rect((375,75,75,75))
+f3 = pygame.Rect((375,150,75,75))
+f4 = pygame.Rect((375,225,75,75))
+f5 = pygame.Rect((375,300,75,75))
+f6 = pygame.Rect((375,375,75,75))
+f7 = pygame.Rect((375,450,75,75))
+f8 = pygame.Rect((375,525,75,75))
+
+g1 = pygame.Rect((450,0,75,75))
+g2 = pygame.Rect((450,75,75,75))
+g3 = pygame.Rect((450,150,75,75))
+g4 = pygame.Rect((450,225,75,75))
+g5 = pygame.Rect((450,300,75,75))
+g6 = pygame.Rect((450,375,75,75))
+g7 = pygame.Rect((450,450,75,75))
+g8 = pygame.Rect((450,525,75,75))
+
+h1 = pygame.Rect((525,0,75,75))
+h2 = pygame.Rect((525,75,75,75))
+h3 = pygame.Rect((525,150,75,75))
+h4 = pygame.Rect((525,225,75,75))
+h5 = pygame.Rect((525,300,75,75))
+h6 = pygame.Rect((525,375,75,75))
+h7 = pygame.Rect((525,450,75,75))
+h8 = pygame.Rect((525,525,75,75))
+
+w1 = pygame.Rect((0,525,75,75))
+w2 = pygame.Rect((150,525,75,75))
+w3 = pygame.Rect((300,525,75,75))
+w4 = pygame.Rect((450,525,75,75))
+w5 = pygame.Rect((75,450,75,75))
+w6 = pygame.Rect((225,450,75,75))
+w7 = pygame.Rect((375,450,75,75))
+w8 = pygame.Rect((525,450,75,75))
+w9 = pygame.Rect((0,375,75,75))
+w10 = pygame.Rect((150,375,75,75))
+w11 = pygame.Rect((300,375,75,75))
+w12 = pygame.Rect((450,375,75,75))
+
+bl1 = pygame.Rect((75,0,75,75))
+bl2 = pygame.Rect((225,0,75,75))
+bl3 = pygame.Rect((375,0,75,75))
+bl4 = pygame.Rect((525,0,75,75))
+bl5 = pygame.Rect((0,75,75,75))
+bl6 = pygame.Rect((150,75,75,75))
+bl7 = pygame.Rect((300,75,75,75))
+bl8 = pygame.Rect((450,75,75,75))
+bl9 = pygame.Rect((75,150,75,75))
+bl10 = pygame.Rect((225,150,75,75))
+bl11 = pygame.Rect((375,150,75,75))
+bl12 = pygame.Rect((525,150,75,75))
+
+board = [a1,a2,a3,a4,a5,a6,a7,a8,b1,b2,b3,b4,b5,b6,b7,b8,c1,c2,c3,c4,c5,c6,c7,c8,d1,d2,d3,d4,d5,d6,d7,d8,e1,e2,e3,e4,e5,e6,e7,e8,f1,f2,f3,f4,f5,f6,f7,f8,g1,g2,g3,g4,g5,g6,g7,g8,h1,h2,h3,h4,h5,h6,h7,h8]
+
+board_to_coord = {"[<rect(0, 0, 75, 75)>]": "a1", "[<rect(0, 75, 75, 75)>]": "a2", "[<rect(0, 150, 75, 75)>]": "a3", "[<rect(0, 225, 75, 75)>]": "a4", "[<rect(0, 300, 75, 75)>]": "a5", "[<rect(0, 375, 75, 75)>]": "a6", "[<rect(0, 450, 75, 75)>]": "a7", "[<rect(0, 525, 75, 75)>]": "a8","[<rect(75, 0, 75, 75)>]": "b1", "[<rect(75, 75, 75, 75)>]": "b2", "[<rect(75, 150, 75, 75)>]": "b3", "[<rect(75, 225, 75, 75)>]": "b4", "[<rect(75, 300, 75, 75)>]": "b5", "[<rect(75, 375, 75, 75)>]": "b6", "[<rect(75, 450, 75, 75)>]": "b7", "[<rect(75, 525, 75, 75)>]": "b8", "[<rect(150, 0, 75, 75)>]": "c1", "[<rect(150, 75, 75, 75)>]": "c2", "[<rect(150, 150, 75, 75)>]": "c3", "[<rect(150, 225, 75, 75)>]": "c4", "[<rect(150, 300, 75, 75)>]": "c5", "[<rect(150, 375, 75, 75)>]": "c6", "[<rect(150, 450, 75, 75)>]": "c7", "[<rect(150, 525, 75, 75)>]": "c8", "[<rect(225, 0, 75, 75)>]": "d1", "[<rect(225, 75, 75, 75)>]": "d2", "[<rect(225, 150, 75, 75)>]": "d3", "[<rect(225, 225, 75, 75)>]": "d4", "[<rect(225, 300, 75, 75)>]": "d5", "[<rect(225, 375, 75, 75)>]": "d6", "[<rect(225, 450, 75, 75)>]": "d7", "[<rect(225, 525, 75, 75)>]": "d8", "[<rect(300, 0, 75, 75)>]": "e1", "[<rect(300, 75, 75, 75)>]": "e2", "[<rect(300, 150, 75, 75)>]": "e3", "[<rect(300, 225, 75, 75)>]": "e4", "[<rect(300, 300, 75, 75)>]": "e5", "[<rect(300, 375, 75, 75)>]": "e6", "[<rect(300, 450, 75, 75)>]": "e7", "[<rect(300, 525, 75, 75)>]": "e8", "[<rect(375, 0, 75, 75)>]": "f1", "[<rect(375, 75, 75, 75)>]": "f2", "[<rect(375, 150, 75, 75)>]": "f3", "[<rect(375, 225, 75, 75)>]": "f4", "[<rect(375, 300, 75, 75)>]": "f5", "[<rect(375, 375, 75, 75)>]": "f6", "[<rect(375, 450, 75, 75)>]": "f7", "[<rect(375, 525, 75, 75)>]": "f8", "[<rect(450, 0, 75, 75)>]": "g1", "[<rect(450, 75, 75, 75)>]": "g2", "[<rect(450, 150, 75, 75)>]": "g3", "[<rect(450, 225, 75, 75)>]": "g4", "[<rect(450, 300, 75, 75)>]": "g5", "[<rect(450, 375, 75, 75)>]": "g6", "[<rect(450, 450, 75, 75)>]": "g7", "[<rect(450, 525, 75, 75)>]": "g8", "[<rect(525, 0, 75, 75)>]": "h1", "[<rect(525, 75, 75, 75)>]": "h2", "[<rect(525, 150, 75, 75)>]": "h3", "[<rect(525, 225, 75, 75)>]": "h4", "[<rect(525, 300, 75, 75)>]": "h5", "[<rect(525, 375, 75, 75)>]": "h6", "[<rect(525, 450, 75, 75)>]": "h7", "[<rect(525, 525, 75, 75)>]": "h8"}
+coord_to_board = {value: key for key, value in board_to_coord.items()} # flips the whole dictionary
+white_pieces = [w1,w2,w3,w4,w5,w6,w7,w8,w9,w10,w11,w12]
+black_pieces = [bl1,bl2,bl3,bl4,bl5,bl6,bl7,bl8,bl9,bl10,bl11,bl12]
+Board = [
+    [0,1,0,1,0,1,0,1],
+    [1,0,1,0,1,0,1,0],
+    [0,1,0,1,0,1,0,1],
+    [0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0],
+    [2,0,2,0,2,0,2,0],
+    [0,2,0,2,0,2,0,2],
+    [2,0,2,0,2,0,2,0]]
+
+spriteBoard = [
+    [a1,b1,c1,d1,e1,f1,g1,h1],
+    [a2,b2,c2,d2,e2,f2,g2,h2],
+    [a3,b3,c3,d3,e3,f3,g3,h3],
+    [a4,b4,c4,d4,e4,f4,g4,h4],
+    [a5,b5,c5,d5,e5,f5,g5,h5],
+    [a6,b6,c6,d6,e6,f6,g6,h6],
+    [a7,b7,c7,d7,e7,f7,g7,h7],
+    [a8,b8,c8,d8,e8,f8,g8,h8]]
+
+RED = (255, 0 , 0)
+WHITE = (255,255,255)
+LBROWN = (222,184,135)
+DBROWN = (85,51,17)
+BLACK = (0,0,0)
+
+def clear(): # Draws every single square on the board, alternating between brown & light brown
+    pygame.draw.rect(screen,DBROWN,a1)
+    pygame.draw.rect(screen,LBROWN,a2)
+    pygame.draw.rect(screen,DBROWN,a3)
+    pygame.draw.rect(screen,LBROWN,a4)
+    pygame.draw.rect(screen,DBROWN,a5)
+    pygame.draw.rect(screen,LBROWN,a6)
+    pygame.draw.rect(screen,DBROWN,a7)
+    pygame.draw.rect(screen,LBROWN,a8)
+
+    pygame.draw.rect(screen,LBROWN,b1)
+    pygame.draw.rect(screen,DBROWN,b2)
+    pygame.draw.rect(screen,LBROWN,b3)
+    pygame.draw.rect(screen,DBROWN,b4)
+    pygame.draw.rect(screen,LBROWN,b5)
+    pygame.draw.rect(screen,DBROWN,b6)
+    pygame.draw.rect(screen,LBROWN,b7)
+    pygame.draw.rect(screen,DBROWN,b8)
+
+    pygame.draw.rect(screen,DBROWN,c1)
+    pygame.draw.rect(screen,LBROWN,c2)
+    pygame.draw.rect(screen,DBROWN,c3)
+    pygame.draw.rect(screen,LBROWN,c4)
+    pygame.draw.rect(screen,DBROWN,c5)
+    pygame.draw.rect(screen,LBROWN,c6)
+    pygame.draw.rect(screen,DBROWN,c7)
+    pygame.draw.rect(screen,LBROWN,c8)
+
+    pygame.draw.rect(screen,LBROWN,d1)
+    pygame.draw.rect(screen,DBROWN,d2)
+    pygame.draw.rect(screen,LBROWN,d3)
+    pygame.draw.rect(screen,DBROWN,d4)
+    pygame.draw.rect(screen,LBROWN,d5)
+    pygame.draw.rect(screen,DBROWN,d6)
+    pygame.draw.rect(screen,LBROWN,d7)
+    pygame.draw.rect(screen,DBROWN,d8)
+
+    pygame.draw.rect(screen,DBROWN,e1)
+    pygame.draw.rect(screen,LBROWN,e2)
+    pygame.draw.rect(screen,DBROWN,e3)
+    pygame.draw.rect(screen,LBROWN,e4)
+    pygame.draw.rect(screen,DBROWN,e5)
+    pygame.draw.rect(screen,LBROWN,e6)
+    pygame.draw.rect(screen,DBROWN,e7)
+    pygame.draw.rect(screen,LBROWN,e8)
+
+    pygame.draw.rect(screen,LBROWN,f1)
+    pygame.draw.rect(screen,DBROWN,f2)
+    pygame.draw.rect(screen,LBROWN,f3)
+    pygame.draw.rect(screen,DBROWN,f4)
+    pygame.draw.rect(screen,LBROWN,f5)
+    pygame.draw.rect(screen,DBROWN,f6)
+    pygame.draw.rect(screen,LBROWN,f7)
+    pygame.draw.rect(screen,DBROWN,f8)
+
+    pygame.draw.rect(screen,DBROWN,g1)
+    pygame.draw.rect(screen,LBROWN,g2)
+    pygame.draw.rect(screen,DBROWN,g3)
+    pygame.draw.rect(screen,LBROWN,g4)
+    pygame.draw.rect(screen,DBROWN,g5)
+    pygame.draw.rect(screen,LBROWN,g6)
+    pygame.draw.rect(screen,DBROWN,g7)
+    pygame.draw.rect(screen,LBROWN,g8)
+
+    pygame.draw.rect(screen,LBROWN,h1)
+    pygame.draw.rect(screen,DBROWN,h2)
+    pygame.draw.rect(screen,LBROWN,h3)
+    pygame.draw.rect(screen,DBROWN,h4)
+    pygame.draw.rect(screen,LBROWN,h5)
+    pygame.draw.rect(screen,DBROWN,h6)
+    pygame.draw.rect(screen,LBROWN,h7)
+    pygame.draw.rect(screen,DBROWN,h8)
+    drawBoard(Board,spriteBoard)
+
+def drawBoard(Board,spriteBoard): # draws board
+    for i in range(len(Board)):
+        for j in range(len(Board[i])):
+            if Board[j][i] == 1:
+                location = spriteBoard[j][i]
+                pygame.draw.circle(screen, BLACK, (location[0]+37.5, location[1]+37.5), 28.125)
+            elif Board[j][i] == 2:
+                location = spriteBoard[j][i]
+                pygame.draw.circle(screen, WHITE, (location[0]+37.5, location[1]+37.5), 28.125)
+
+def updatePieceLoc(start,end,spriteBoard): # updates both boards (sprite and normal)
+    for i in range(len(spriteBoard)):
+        for j in range(len(spriteBoard[i])):
+            if str(board_to_coord["[" + str(spriteBoard[j][i]) + "]"]) == start:
+                XStart = i
+                YStart = j
+    for i in range(len(spriteBoard)):
+        for j in range(len(spriteBoard[i])):
+            if str(board_to_coord["[" + str(spriteBoard[j][i]) + "]"]) == end: # string manipulatin to match 
+                XEnd = i
+                YEnd = j
+    for p in range(len(black_pieces)):
+        if black_pieces[p] == spriteBoard[YStart][XStart]:
+            black_pieces[p] = copy(spriteBoard[YEnd][XEnd])
+    for p in range(len(white_pieces)):
+        if white_pieces[p] == spriteBoard[YStart][XStart]:
+            white_pieces[p] = copy(spriteBoard[YEnd][XEnd])
+
+def displayMoves(list):
+    for l in list:
+        coord = l
+        clicked = True
+        for i in range(len(spriteBoard)):
+            for j in range(len(spriteBoard[i])):
+                if str(board_to_coord["[" + str(spriteBoard[j][i]) + "]"]) == coord:
+                    location = spriteBoard[j][i]
+        pygame.draw.circle(screen,RED,(location[0]+37.5, location[1]+37.5), 18.75)
+
+def getMouseMove(Board):
+    pos = pygame.mouse.get_pos()
+    clicked_sprites = [s for s in board if s.collidepoint(pos) == True]
+    print("PlayMove:" , CheckersAI.playMove)
+    if CheckersAI.playMove == 1:
+        piecePresent = [p for p in black_pieces if p.collidepoint(pos) == True]
+        CheckersAI.availableMovesB(Board)
+        if CheckersAI.priorityList != []: # checks if a take move has been made
+            CheckersAI.availableMovesList = copy(CheckersAI.priorityList)
+        string = str(clicked_sprites)
+        newlist = []
+        clicked = True
+        for i in CheckersAI.availableMovesList:
+            strI = str(i)
+            coord = board_to_coord[string]
+            if (strI[0] == coord[0]) and (strI[1] == coord[1]):
+                endx = str(i[2])
+                endy = str(i[3])
+                newlist.append(endx + endy)
+                print("here", newlist)
+                clicked = True
+        displayMoves(newlist)
+        pygame.display.update()
+        while clicked == True:  # display potential moves
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONUP:
+                    pos = pygame.mouse.get_pos()
+                    clicked_sprites = str([s for s in board if s.collidepoint(pos) == True])
+                    click = board_to_coord[clicked_sprites]
+                    for e in newlist:
+                        if e[0] == click[0] and e[1] == click[1]:
+                            print("clicked sprites:", clicked_sprites)
+                            start = board_to_coord[str(piecePresent)]
+                            Move = start + e
+                            print("black enemypos",CheckersAI.enemypos)
+                            temp = CheckersAI.UIMoveB(Move,CheckersAI.availableMovesList)
+                            Board = copy(temp)
+                            CheckersAI.boardPrint(Board)
+                            updatePieceLoc(start,e,spriteBoard)
+                            clicked = False
+                            CheckersAI.playMove = 2
+                            clear()
+                            drawBoard(Board,spriteBoard)
+                            pygame.display.update()
+                            return Board
+                    clicked = False
+                    newPiecePresent = [p for p in black_pieces if p.collidepoint(pos) == True]
+                    
+                    if newPiecePresent != []:
+                        clear()
+                        getMouseMove(Board)
+                        
+                        clicked = False
+                        return Board
+                    clicked = False
+
+                if event.type == pygame.QUIT:
+                    run = False
+                    exit()
+            
+
+    elif CheckersAI.playMove == 2:
+        piecePresent = [p for p in white_pieces if p.collidepoint(pos) == True]
+        CheckersAI.availableMovesW(Board)
+        if CheckersAI.priorityList != []:
+            CheckersAI.availableMovesList = copy(CheckersAI.priorityList)
+        string = str(clicked_sprites)
+        newlist = []
+        clicked = True
+        for i in CheckersAI.availableMovesList:
+            strI = str(i)
+            coord = board_to_coord[string]
+            if (strI[0] == coord[0]) and (strI[1] == coord[1]):
+                endx = str(i[2])
+                endy = str(i[3])
+                newlist.append(endx + endy)
+                print(newlist)
+                clicked = True
+        displayMoves(newlist)
+        pygame.display.update()
+        while clicked == True:
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONUP:
+                    pos = pygame.mouse.get_pos()
+                    clicked_sprites = str([s for s in board if s.collidepoint(pos) == True])
+                    click = board_to_coord[clicked_sprites]
+                    for e in newlist:
+                        secondList = []
+                        if e[0] == click[0] and e[1] == click[1]:
+                            start = board_to_coord[str(piecePresent)]
+                            Move = start + e
+                            temp = CheckersAI.UIMoveW(Move,CheckersAI.availableMovesList)
+                            Board = copy(temp)
+                            updatePieceLoc(start,e,spriteBoard)
+                            CheckersAI.boardPrint(Board)
+                            clicked = False
+                            CheckersAI.playMove = 1
+                            print("secondList", secondList)
+                            CheckersAI.boardPrint(Board)
+                            print("YO")
+                            clear()
+                            drawBoard(Board,spriteBoard)
+                            pygame.display.update() 
+                            return Board
+                    clicked = False
+                    newPiecePresent = [p for p in white_pieces if p.collidepoint(pos) == True]
+                    
+                    if newPiecePresent != []:
+                        clear()
+                        getMouseMove(Board)
+                        
+                        clicked = False
+                        return Board
+                    clicked = False
+
+                if event.type == pygame.QUIT:
+                    run = False
+                    exit()
+    drawBoard(Board,spriteBoard)
+    pygame.display.update()
+    return Board
+
+
+CheckersAI.playMove = 1 #black moves first therefore playMove starts at 1          
+while run:
+    clear() 
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+        elif event.type == pygame.MOUSEBUTTONUP:
+            if CheckersAI.playMove == 1:
+                Board = getMouseMove(Board)
+            elif CheckersAI.playMove == 2:
+                Board = getMouseMove(Board)
+    drawBoard(Board,spriteBoard)
+    pygame.display.update()

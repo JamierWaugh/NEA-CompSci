@@ -338,7 +338,6 @@ def getMouseMove(Board):
                     clicked_sprites = str([s for s in board if s.collidepoint(pos) == True])
                     click = board_to_coord[clicked_sprites]
                     for e in newlist:
-                        secondList = []
                         if e[0] == click[0] and e[1] == click[1]:
                             start = board_to_coord[str(piecePresent)]
                             Move = start + e
@@ -348,7 +347,6 @@ def getMouseMove(Board):
                             CheckersAI.boardPrint(Board)
                             clicked = False
                             CheckersAI.playMove = 1
-                            print("secondList", secondList)
                             CheckersAI.boardPrint(Board)
                             print("YO")
                             clear()

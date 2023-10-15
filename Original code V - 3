@@ -1,0 +1,2180 @@
+import random as r
+import time as t
+from copy import deepcopy
+from copy import copy
+import time
+
+
+global availableMovesList
+global playtype
+global start
+
+#Class containing all Pieceinfo and to contain move Programmes
+class pieceInfo():
+    #Assigning different variables to each piece
+    def __init__ (self,x,y,colour,isKing,value,marker):
+        self.x = x
+        self.y = y
+        self.colour = colour
+        self.isKing = isKing
+        self.value = value 
+        self.marker = marker
+
+    #Moves and more for black pieces
+    def diagonalForwardB(self,checkerBoard):
+        global availableMovesList
+        global priorityList
+        priorityMove = False
+        if self.x != 0 and self.y != 7:
+            move1 = True
+            movex = self.x - 1
+            movey = self.y + 1
+            if checkerBoard[movey][movex] == 2:
+                self.DwnpieceTakeL(movex,movey,checkerBoard)
+            elif checkerBoard[movey][movex] == 1:
+                move1 = False
+            else:
+                self.updateList(movex,movey,priorityMove)
+        if self.x != 7 and self.y != 7:
+            move2 = True
+            movex = self.x + 1
+            movey = self.y + 1
+            if checkerBoard[movey][movex] == 2:
+                self.DwnpieceTakeR(movex,movey,checkerBoard)
+            elif checkerBoard[movey][movex] == 1:
+                move2 = False
+            else:
+                self.updateList(movex,movey,priorityMove)
+
+ 
+    #Moves for the black king
+    def kingMoveB(self,checkerBoard):
+        global availableMovesList
+        global priorityList
+        priorityMove = False
+        if self.x != 0 and self.y != 0:
+            move1 = True
+            movex = self.x - 1
+            movey = self.y - 1
+            if checkerBoard[movey][movex] == 2:
+                self.UppieceTakeL(movex,movey,checkerBoard)
+            elif checkerBoard[movey][movex] == 1:
+                move1 = False
+            else:
+                self.updateList(movex,movey,priorityMove)
+        if self.x != 7 and self.y != 0:
+            move2 = True
+            movex = self.x + 1
+            movey = self.y - 1
+            if checkerBoard[movey][movex] == 2:
+                self.UppieceTakeR(movex,movey,checkerBoard)
+            elif checkerBoard[movey][movex] == 1:
+                move2 = False
+            else:
+                self.updateList(movex,movey,priorityMove)
+    #Checking whether black piece is King
+    def kingCheckB(self):
+        if self.isKing == False:
+            if self.y == 7:
+                self.isKing = True
+                self.value = -50
+        if self.isKing == True:
+            self.value = -50
+
+
+
+    #Moves and more for white piece
+    def diagonalForwardW(self,checkerBoard):
+        global availableMovesList
+        global priorityList
+        global enemypos
+        priorityMove = False
+        if self.x != 0 and self.y != 0:
+            move1 = True
+            movex = self.x - 1
+            movey = self.y - 1
+            if checkerBoard[movey][movex] == 1:
+                self.UppieceTakeL(movex,movey,checkerBoard)
+            elif checkerBoard[movey][movex] == 2:
+                move1 = False
+            else:
+                self.updateList(movex,movey,priorityMove)
+        if self.x != 7 and self.y != 0:
+            move2 = True
+            movex = self.x + 1
+            movey = self.y - 1
+            if checkerBoard[movey][movex] == 1:
+                self.UppieceTakeR(movex,movey,checkerBoard)           
+            elif checkerBoard[movey][movex] == 2:
+                move2 = False
+            else:
+                self.updateList(movex,movey,priorityMove)
+
+    #King move for white
+    def kingMoveW(self,checkerBoard):
+        global availableMovesList
+        global priorityList
+        priorityMove = False
+        if self.x != 0 and self.y != 7:
+            move1 = True
+            movex = self.x - 1
+            movey = self.y + 1
+            if checkerBoard[movey][movex] == 1:
+                self.DwnpieceTakeL(movex,movey,checkerBoard)
+            elif checkerBoard[movey][movex] == 2:
+                move1 = False
+            else:
+                self.updateList(movex,movey,priorityMove)
+        if self.x != 7 and self.y != 7:
+            move2 = True
+            movex = self.x + 1
+            movey = self.y + 1
+            if checkerBoard[movey][movex] == 1:
+                self.DwnpieceTakeR(movex,movey,checkerBoard)
+            elif checkerBoard[movey][movex] == 2:
+                move2 = False
+            else:
+                self.updateList(movex,movey,priorityMove)
+    #Checking whether white piece is King
+    def kingCheckW(self):
+        if self.isKing == False:
+            if self.y == 0:
+                self.isKing = True
+                self.value = 50
+        if self.isKing == True:
+            self.value = 50
+            
+
+
+    
+    
+# Procedure to update list with moves
+    def updateList(self,movex,movey,priorityMove):
+        global availableMovesList
+        global priorityList
+        if priorityMove == True:
+            runningTotal=str(numToAlpha[self.x])
+            runningTotal+=str(self.y+1)
+            runningTotal+=str(numToAlpha[movex])
+            runningTotal+=str(movey+1)
+            priorityList.append(runningTotal)
+            priorityMove = False
+        else:
+            runningTotal=str(numToAlpha[self.x])
+            runningTotal+=str(self.y+1)
+            runningTotal+=str(numToAlpha[movex])
+            runningTotal+=str(movey+1)
+            availableMovesList.append(runningTotal)
+    
+            
+    #Piece hopping down and right
+    def DwnpieceTakeR(self,movex,movey,checkerBoard):
+        enemyposx = movex
+        enemyposy = movey
+        movex = movex+1
+        movey = movey+1
+        if enemyposx != 7 and enemyposy != 7:
+            if checkerBoard[movey][movex] == 0:
+                priorityMove = True
+                self.updateList(movex,movey,priorityMove)
+                runningTotal = str(enemyposx)
+                runningTotal += str(enemyposy)
+                enemypos.append(runningTotal) # adding the enemy position into another list so they can be removed if the move is chosen
+                
+    #Piece hopping down and left
+    def DwnpieceTakeL(self,movex,movey,checkerBoard):
+        enemyposx = movex
+        enemyposy = movey
+        movex = movex-1
+        movey = movey+1
+        if enemyposx != 0 and enemyposy != 7:
+            if checkerBoard[movey][movex] == 0:
+                priorityMove = True
+                self.updateList(movex,movey,priorityMove)
+                runningTotal = str(enemyposx)
+                runningTotal += str(enemyposy)
+                enemypos.append(runningTotal)
+    #Piece hopping up and right
+    def UppieceTakeR(self,movex,movey,checkerBoard):
+        enemyposx = movex
+        enemyposy = movey
+        movex = movex + 1 
+        movey = movey - 1
+        if enemyposx != 7 and enemyposy != 0:
+            if checkerBoard[movey][movex] == 0:
+                priorityMove = True
+                self.updateList(movex,movey,priorityMove)
+                runningTotal = str(enemyposx)
+                runningTotal += str(enemyposy)
+                enemypos.append(runningTotal) 
+    #Piece hopping up and left
+    def UppieceTakeL(self,movex,movey,checkerBoard):
+        enemyposx = movex
+        enemyposy = movey
+        movex = movex - 1 
+        movey = movey - 1
+        if enemyposx !=0 and enemyposy != 0:
+            if checkerBoard[movey][movex] == 0:
+                priorityMove = True
+                self.updateList(movex,movey,priorityMove)
+                runningTotal = str(enemyposx)
+                runningTotal += str(enemyposy)
+                enemypos.append(runningTotal)
+                #eliminate enemy function
+
+    #Editting the piece position inside the class
+    def searchPiece(self,XStart,YStart,XEnd,YEnd):
+        if self.x == XStart and self.y == YStart-1:
+            self.x = XEnd
+            self.y = YEnd-1
+    #Editting the temporary piece positions inside the class
+    def tempsearchPiece(self,XStart,YStart,XEnd,YEnd):
+        if self.x == XStart and self.y == YStart-1:
+            self.x = XEnd
+            self.y = YEnd-1
+
+    
+    
+    
+    #Searching piece position to elim piece
+    def tempelimSearch(self,enemyposx,enemyposy): # temp for the ai and the many "positions" it will generate
+        if self.x == enemyposx and self.y == enemyposy:
+                if len(eliminatedall) != 0: # making sure the eliminated list is empty
+                    for i in eliminatedall:
+                        eliminatedall.remove(i)
+                eliminatedall.append(self) #This list is used to reinstate the temporary list after that branch
+                varallpieces.remove(self)
+                
+                if self.colour == "B":
+                    if len(eliminatedblack) != 0 :
+                        for i in eliminatedblack:
+                            eliminatedblack.remove(i)
+                    eliminatedblack.append(self)
+                    varblackpieces.remove(self)
+                if self.colour == "W":
+                    if len(eliminatedwhite) != 0 :
+                        for i in eliminatedwhite:
+                         eliminatedwhite.remove(i)
+                    eliminatedwhite.append(self)
+                    varwhitepieces.remove(self)
+                    
+
+    #Searching for the actual peice to be removed / eliminated
+    def elimSearch(self,enemyposx,enemyposy):
+        if self.x == enemyposx and self.y == enemyposy:
+                allpieces.remove(self)
+                if self.colour == "B":
+                    blackpieces.remove(self)
+                if self.colour == "W":
+                    whitepieces.remove(self)
+
+    #Permenantly removes the "temporary" pieces after a real move has been made
+    def permconstelimSearch(self,enemyposx,enemyposy):
+        if self.x == enemyposx and self.y == enemyposy:
+            constvarallpieces.remove(self)
+            if self.colour == "B":
+                constvarblackpieces.remove(self)
+            if self.colour == "W":
+                constvarwhitepieces.remove(self)
+    def permvarelimSearch(self,enemyposx,enemyposy):
+        if self.x == enemyposx and self.y == enemyposy:
+            varallpieces.remove(self)
+            if self.colour == "B":
+                varblackpieces.remove(self)
+            if self.colour == "W":
+                varwhitepieces.remove(self)
+    
+    #Adds removed pieces back into their respective lists after the branch
+    def addpieceback(self):
+        varallpieces.append(self)
+        if self.colour == "B":
+            varblackpieces.append(self)
+            eliminatedblack.remove(self)
+        if self.colour == "W":
+            varwhitepieces.append(self)
+            eliminatedwhite.remove(self)
+
+        
+
+            
+ #All piece information
+p0 = pieceInfo(0,0,"X",False,0,0) #place holder piece for specific lists
+ # Real pieces
+b1  = pieceInfo(1,0,"B",False,-10,1)
+b2  = pieceInfo(3,0,"B",False,-10,2)
+b3  = pieceInfo(5,0,"B",False,-10,3)
+b4  = pieceInfo(7,0,"B",False,-10,4)
+b5  = pieceInfo(0,1,"B",False,-10,5)
+b6  = pieceInfo(2,1,"B",False,-10,6)
+b7  = pieceInfo(4,1,"B",False,-10,7)
+b8  = pieceInfo(6,1,"B",False,-10,8)
+b9  = pieceInfo(1,2,"B",False,-10,9)
+b10 = pieceInfo(3,2,"B",False,-10,10)
+b11 = pieceInfo(5,2,"B",False,-10,11)
+b12 = pieceInfo(7,2,"B",False,-10,12)
+
+w1  = pieceInfo(0,7,"W",False,10,13)
+w2  = pieceInfo(2,7,"W",False,10,14)
+w3  = pieceInfo(4,7,"W",False,10,15)
+w4  = pieceInfo(6,7,"W",False,10,16)
+w5  = pieceInfo(1,6,"W",False,10,17)
+w6  = pieceInfo(3,6,"W",False,10,18)
+w7  = pieceInfo(5,6,"W",False,10,19)
+w8  = pieceInfo(7,6,"W",False,10,20)
+w9  = pieceInfo(0,5,"W",False,10,21)
+w10 = pieceInfo(2,5,"W",False,10,22)
+w11 = pieceInfo(4,5,"W",False,10,23)
+w12 = pieceInfo(6,5,"W",False,10,24)
+
+#Temp pieces (place holders for the minimax)
+vb1  = pieceInfo(1,0,"B",False,-10,1)
+vb2  = pieceInfo(3,0,"B",False,-10,2)
+vb3  = pieceInfo(5,0,"B",False,-10,3)
+vb4  = pieceInfo(7,0,"B",False,-10,4)
+vb5  = pieceInfo(0,1,"B",False,-10,5)
+vb6  = pieceInfo(2,1,"B",False,-10,6)
+vb7  = pieceInfo(4,1,"B",False,-10,7)
+vb8  = pieceInfo(6,1,"B",False,-10,8)
+vb9  = pieceInfo(1,2,"B",False,-10,9)
+vb10 = pieceInfo(3,2,"B",False,-10,10)
+vb11 = pieceInfo(5,2,"B",False,-10,11)
+vb12 = pieceInfo(7,2,"B",False,-10,12)
+
+vw1  = pieceInfo(0,7,"W",False,10,13)
+vw2  = pieceInfo(2,7,"W",False,10,14)
+vw3  = pieceInfo(4,7,"W",False,10,15)
+vw4  = pieceInfo(6,7,"W",False,10,16)
+vw5  = pieceInfo(1,6,"W",False,10,17)
+vw6  = pieceInfo(3,6,"W",False,10,18)
+vw7  = pieceInfo(5,6,"W",False,10,19)
+vw8  = pieceInfo(7,6,"W",False,10,20)
+vw9  = pieceInfo(0,5,"W",False,10,21)
+vw10 = pieceInfo(2,5,"W",False,10,22)
+vw11 = pieceInfo(4,5,"W",False,10,23)
+vw12 = pieceInfo(6,5,"W",False,10,24)
+
+# Lists of  the pieces
+blackpieces = [b1,b2,b3,b4,b5,b6,b7,b8,b9,b10,b11,b12]
+
+whitepieces = [w1,w2,w3,w4,w5,w6,w7,w8,w9,w10,w11,w12]
+
+allpieces = [w1,w2,w3,w4,w5,w6,w7,w8,w9,w10,w11,w12,b1,b2,b3,b4,b5,b6,b7,b8,b9,b10,b11,b12]
+ 
+constvarallpieces = [vw1,vw2,vw3,vw4,vw5,vw6,vw7,vw8,vw9,vw10,vw11,vw12,vb1,vb2,vb3,vb4,vb5,vb6,vb7,vb8,vb9,vb10,vb11,vb12]
+#inefficient but holds piece values of temp pieces constantly so it can rebuild list of pieces even after elimination of a piece
+constvarblackpieces = [vb1,vb2,vb3,vb4,vb5,vb6,vb7,vb8,vb9,vb10,vb11,vb12]
+#i realised one of my errors was that both varallpieces and allpieces shared the same objects and thus if one was deleted or kept constantly it would impact the others
+constvarwhitepieces = [vw1,vw2,vw3,vw4,vw5,vw6,vw7,vw8,vw9,vw10,vw11,vw12]
+
+varallpieces = [vw1,vw2,vw3,vw4,vw5,vw6,vw7,vw8,vw9,vw10,vw11,vw12,vb1,vb2,vb3,vb4,vb5,vb6,vb7,vb8,vb9,vb10,vb11,vb12]
+
+varblackpieces = [vb1,vb2,vb3,vb4,vb5,vb6,vb7,vb8,vb9,vb10,vb11,vb12]
+
+varwhitepieces = [vw1,vw2,vw3,vw4,vw5,vw6,vw7,vw8,vw9,vw10,vw11,vw12]
+
+eliminatedall = [p0] # setting as any piece simply to be replaced
+
+eliminatedblack = [p0]
+
+eliminatedwhite = [p0]
+
+
+#Updates positional values of the temporary pieces
+def updatingtemppieces():
+    for i in allpieces:
+        for j in constvarallpieces:
+            if i.marker == j.marker:
+                j.x = i.x
+                j.y = i.y
+                j.isKing = i.isKing
+        resettemplist() # not sure if i need this
+#Reverts temporary pieces back to normal pieces if they are not kings in the real game
+def revertking():
+    for i in allpieces:
+        for j in constvarallpieces:
+            if i.marker == j.marker:
+                j.isKing = i.isKing
+        for k in varallpieces:
+            if i.marker == k.marker:
+                k.isKing = i.isKing
+
+def resettemplist(): #returning var...list to constvarstate
+    k = -1
+    for i in constvarallpieces:
+        k = k + 1
+        found = False
+        for j in varallpieces:
+            if i.marker == j.marker:
+                found = True
+        if found == False:
+            varallpieces.insert(k,i)
+    k = -1
+    for i in constvarwhitepieces:
+        k = k + 1
+        found = False
+        for j in varwhitepieces:
+            if i.marker == j.marker:
+                found = True
+        if found == False:
+            varwhitepieces.insert(k,i)
+    k = -1
+    for i in constvarblackpieces:
+        k = k + 1
+        found = False
+        for j in varblackpieces:
+            if i.marker == j.marker:
+                found = True
+        if found == False:
+            varblackpieces.insert(k,i)
+
+#Turning takes back in the minimax
+def reversingtakes(enemyposx,enemyposy,playMove,checkerBoard):
+    
+    if playMove == 1:
+        checkerBoard[enemyposy][enemyposx] = 2
+        for i in eliminatedwhite:
+            i.addpieceback()
+                
+    if playMove == 2:
+        checkerBoard[enemyposy][enemyposx] = 1
+        for i in eliminatedblack:
+            i.addpieceback()
+
+    #Gets enemy position in minimax so they can reverse moves
+def gatherenemypos(j,enemypos):
+    x = int(str(enemypos[j])[0])
+    y = int(str(enemypos[j])[1])
+    return x, y
+
+#Removes place holders for the eliminatedlists
+def setupeliminatedlist():
+    if eliminatedall[0] == p0: # removing object holder
+        eliminatedall.remove(p0)
+        eliminatedblack.remove(p0)
+        eliminatedwhite.remove(p0)  
+
+#Saves a "holdeliminated..." copy of the list so at each level of the branch a copy is ready to reinstate the list
+def savingeliminatedlist():
+    holdeliminatedall =copy(eliminatedall)
+    holdeliminatedblack =copy(eliminatedblack)
+    holdeliminatedwhite =copy(eliminatedwhite)
+    return holdeliminatedall, holdeliminatedblack, holdeliminatedwhite
+#Adds elim lists back to old state
+def returningeliminatedlist(a,b,w):
+    for i in eliminatedall:
+        eliminatedall.remove(i)
+    for i in a:
+        eliminatedall.append(i)
+    for i in eliminatedblack:
+        eliminatedblack.remove(i)
+    for i in b:
+        eliminatedblack.append(i)
+    
+    for i in eliminatedwhite:
+        eliminatedwhite.remove(i)
+    for i in w:
+        eliminatedwhite.append(i)
+
+    
+
+    
+#Bringing consttemplists back to match the real game
+def normalizinglists():
+    updatingtemppieces()
+    k = -1
+    for i in allpieces:
+        k = k + 1
+        found = False
+        for j in constvarallpieces:
+            if i.marker == j.marker:
+                found = True
+        if found == False:
+            constvarallpieces.insert(k,i)
+    k = -1
+    for i in whitepieces:
+        k = k + 1
+        found = False
+        for j in constvarwhitepieces:
+            if i.marker == j.marker:
+                found = True
+        if found == False:
+            constvarwhitepieces.insert(k,i)
+    k = -1
+    for i in blackpieces:
+        k = k + 1
+        found = False
+        for j in constvarblackpieces:
+            if i.marker == j.marker:
+                found = True
+        if found == False:
+            constvarblackpieces.insert(k,i)
+    list = constvarwhitepieceLocations()
+    #print("after",list)
+
+#Removing consttemp pieces in accordance to the real board
+def removefinalpieces():
+    for k in constvarallpieces:
+        located = False
+        for j in allpieces:
+            if k.marker == j.marker:
+                located = True
+        if located == False:
+            if k.colour ==  "W":
+                constvarwhitepieces.remove(k)
+            if k.colour == "B":
+                constvarblackpieces.remove(k)
+            constvarallpieces.remove(k)
+    resettemplist()
+    
+
+# Checkerboard 2d list 
+checkerBoard = [
+    [0,1,0,1,0,1,0,1],
+    [1,0,1,0,1,0,1,0],
+    [0,1,0,1,0,1,0,1],
+    [0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0],
+    [2,0,2,0,2,0,2,0],
+    [0,2,0,2,0,2,0,2],
+    [2,0,2,0,2,0,2,0]]
+
+#Function to eliminate piece
+def elimPiece(enemyposx,enemyposy,checkerBoard):
+    checkerBoard[enemyposy][enemyposx] = 0
+    for i in allpieces:
+        i.elimSearch(enemyposx,enemyposy)
+    for i in constvarallpieces:
+        i.permconstelimSearch(enemyposx,enemyposy)
+    for i in varallpieces:
+        i.permvarelimSearch(enemyposx,enemyposy)
+
+def tempelimPiece(enemyposx,enemyposy,tempBoard):
+    tempBoard[enemyposy][enemyposx] = 0
+    for i in varallpieces:
+        i.tempelimSearch(enemyposx,enemyposy)
+
+
+    
+    
+
+#find all active pieceLocations
+def allpieceLocations():
+        allpieceLocations = []
+        for i in allpieces:
+            entry = str(i.x)
+            entry += str(i.y)
+            allpieceLocations.append(entry)
+        return allpieceLocations
+    
+def blackpieceLocations():
+    blackpieceLocations = []
+    for i in varblackpieces:
+        entry = str(i.x)
+        entry += str(i.y)
+        blackpieceLocations.append(entry)
+    return blackpieceLocations
+def constvarblackpieceLocations():
+    list = []
+    for i in constvarblackpieces:
+        entry = str(i.x)
+        entry += str(i.y)
+        list.append(entry)
+    return list
+def actualblackpieceLocations():
+    blackpieceLocations = []
+    for i in blackpieces:
+        entry = str(i.x)
+        entry += str(i.y)
+        blackpieceLocations.append(entry)
+    return blackpieceLocations
+
+def whitepieceLocations():
+    whitepieceLocations = []
+    for i in varwhitepieces:
+        entry = str(i.x)
+        entry += str(i.y)
+        whitepieceLocations.append(entry)
+    return whitepieceLocations
+def constvarwhitepieceLocations():
+    list = []
+    for i in constvarwhitepieces:
+        entry = str(i.x)
+        entry += str(i.y)
+        list.append(entry)
+    return list
+def actualwhitepieceLocations():
+    list = []
+    for i in whitepieces:
+        entry = str(i.x)
+        entry += str(i.y)
+        list.append(entry)
+    return list
+
+def allvarlocations():
+    list = []
+    for i in varallpieces:
+        entry = str(i.x)
+        entry += str(i.y)
+        list.append(entry)
+    return list
+
+# evaluate score for computer to track
+def evaluate():
+    score = 0
+    
+    if len(varblackpieces) <= 1:
+        score = 10010 # classed as a win
+        return score
+    if len(varwhitepieces) <= 1:
+        score = -10010
+        return score
+    for i in varblackpieces:
+        if i.isKing == True:
+            i.value = -50
+        if i.isKing == False:
+            i.value = -10
+        score += i.value
+    for i in varwhitepieces:
+        if i.isKing == True:
+            i.value = 50
+        
+        if i.isKing == False:
+            i.value = 10
+        score += i.value
+    revertking()  
+    return score
+
+#translation into an easier to read format for position based on machine
+def intomachinepos(coord):
+        curx = int(coord[0])+1
+        cury = int(coord[1])
+        curboardloc = (8*cury) + curx
+
+def outofmachinepos(coord):
+    x = coord % 8
+    y = coord / 8
+
+
+
+
+
+
+#available moves programme
+def availableMovesB(checkerBoard):
+    global availableMovesList
+    global priorityList
+    global enemypos
+    priorityList = []
+    availableMovesList = []
+    enemypos = []
+    for i in blackpieces:
+        i.kingCheckB()
+        i.diagonalForwardB(checkerBoard)
+        if i.isKing == True:
+           i.kingMoveB(checkerBoard)
+            
+            
+def tempavailableMovesB(checkerBoard):
+    global availableMovesList
+    global priorityList
+    global enemypos
+    priorityList = []
+    availableMovesList = []
+    enemypos = []
+    for i in varblackpieces:
+        i.kingCheckB()
+        i.diagonalForwardB(checkerBoard)
+        if i.isKing == True:
+            i.kingMoveB(checkerBoard)
+
+#available moves programme
+
+def availableMovesW(checkerBoard):
+    global availableMovesList
+    global priorityList
+    global enemypos
+    priorityList = []
+    availableMovesList = []
+    enemypos = []
+    for i in whitepieces:
+        i.kingCheckW()
+        i.diagonalForwardW(checkerBoard)
+        if i.isKing == True:
+            i.kingMoveW(checkerBoard)
+
+def tempavailableMovesW(checkerBoard):
+    global availableMovesList
+    global priorityList
+    global enemypos
+    priorityList = []
+    availableMovesList = []
+    enemypos = []
+    for i in varwhitepieces:
+        i.kingCheckW()
+        i.diagonalForwardW(checkerBoard)
+        if i.isKing == True:
+            i.kingMoveW(checkerBoard)
+    
+
+
+availableMovesList = []
+priorityMove = False
+#converting number to piece
+NumToPiece = {
+    0:" • ", 
+    1:" B ", 2:" W "
+}
+
+AlphaToNum = {
+    "a":0,"b":1,"c":2, "d":3, "e":4,"f":5,"g":6,"h":7,
+    }
+numToAlpha = {
+    0:"a", 1:"b", 2:"c", 3:"d",4:"e",5:"f",6:"g",7:"h",
+}
+
+
+
+#Process to print the board
+def boardPrint(checkerBoard):
+    p = 1
+    print("   A   B   C   D   E   F   G   H  ")
+    for i in range(8):
+        print(p, end='')
+        for j in range(8):
+            print(end=" ")
+            print(end= NumToPiece[checkerBoard[i][j]])
+        print("\n")
+        p = p+1
+
+#find position of all pieces of a certain colour      
+def piecePosB():
+    for i in range(8):
+        for j in range(8):
+            if checkerBoard[i][j] == 1:
+                print("Black piece found at: ",numToAlpha[j],i+1, sep="")
+                                                      
+def piecePosW():
+    for i in range(8):
+        for j in range(8):
+            if checkerBoard[i][j] == 2:
+                print("White piece found at: ",numToAlpha[j],i+1, sep="")
+
+def initialminimax(depth,playMove,constPlayer,checkerBoard):
+    global start
+    global sumoftotal
+    global branchtotal
+    branchtotal = 0
+    sumoftotal = 0
+    firststart = time.time()
+    finalMove = []
+    normalizinglists()
+    resettemplist()
+    setupeliminatedlist()
+    updatingtemppieces() #updating variable positions list to be the old list
+    evaluate()
+    print("Starting value")
+    global availableMovesList
+    global priorityList
+    global scorelist
+    global enemypos
+    global finaltotaltime
+    global totalcompmoves
+    algo = True
+    
+    takingPiece = False
+    enemypos = []
+    if constPlayer == 1:
+        takingPiece = False
+        availableMovesB(checkerBoard) #finds all available moves for Black 
+        holdenemypos = copy(enemypos)
+        j = -1 # acts as a incrementing variable for a specific list to use
+        v = 10001
+        if priorityList != []: # if a piece can be taken, it is the only move available in checkers (thus priority move)
+            availableMovesList = priorityList
+            takingPiece = True
+            holdenemypos = copy(enemypos)
+            #here
+        holdMovesList = copy(availableMovesList)
+        finalmovelist = []
+        if len(availableMovesList) == 1: # to optimize, if only one move can be made, the whole algorithm is skipped
+            finalmovelist = [0]
+            algo = False
+        if algo == True:
+            for i in availableMovesList: # list of moves available
+                start = time.time()
+                playMove = 1
+                gameend = False
+                j+=1 # j increments
+                tempBoard = deepcopy(checkerBoard)  # creates copy of current state  for each move available at depth 1
+                updatingtemppieces()
+                resettemplist() 
+                availableMovesList =copy(holdMovesList)
+                depth = constDepth #resetting depth after every iteration
+                
+                if takingPiece == False:
+                    chosenMove = i
+                    XStart = AlphaToNum[chosenMove[0]]
+                    YStart = int(chosenMove[1])
+                    XEnd = AlphaToNum[chosenMove[-2]]
+                    YEnd = int(chosenMove[-1]) # these 4 lines of code translate the available move into a useable integer value for board locations
+                    tempboardEditB(XStart,YStart,XEnd,YEnd,tempBoard) #temporarily edits the copied board to be this move
+                    playMove = 2
+                    depth -= 1
+                    vnew = minimax(depth,playMove,constPlayer,tempBoard,v)
+                    playMove = 1
+                    v, changed = MinValuein(v,vnew,j)
+                    finalmovelist = CompilingEndListMin(v,vnew,changed,finalmovelist,j)
+                    
+                    availableMovesList =copy(holdMovesList)                 
+                    depth = constDepth
+                    tempboardEditB(XEnd,YEnd,XStart,YStart,tempBoard)
+                    updatingtemppieces()
+                if takingPiece == True:
+                    enemypos =copy(holdenemypos)
+                    secondMove = False
+                    playMove = 1
+                    chosenMove = i
+                    enemyTaken = enemypos[j]
+                    XStart = AlphaToNum[chosenMove[0]]
+                    YStart = int(chosenMove[1])
+                    XEnd = AlphaToNum[chosenMove[-2]]
+                    YEnd = int(chosenMove[-1])
+                    enemyx = int(enemyTaken[0])
+                    enemyy = int(enemyTaken[1])
+                    tempboardEditB(XStart,YStart,XEnd,YEnd,tempBoard)
+                    tempelimPiece(enemyx,enemyy,tempBoard)
+                    depth = depth - 1
+                    if len(varblackpieces) <= 1:
+                        v = 10000
+                        gameend = True
+                        finalmovelist = CompilingEndListMin(v,vnew,changed,finalmovelist,j)
+                        resettemplist()
+                        tempboardEditB(XEnd,YEnd,XStart,YStart,tempBoard)
+                        updatingtemppieces()
+                    if len(varwhitepieces) <= 1:
+                        v = -10000
+                        gameend = True
+                        finalmovelist = CompilingEndListMin(v,vnew,changed,finalmovelist,j)
+                        resettemplist()
+                        tempboardEditB(XEnd,YEnd,XStart,YStart,tempBoard)
+                        updatingtemppieces()
+                    
+                    if gameend == False:
+                        secondMove = secondaryMovecheck(XEnd,YEnd,playMove,tempBoard)
+                        if secondMove == True:
+                            vnew = minimaxsecondaryMove(XEnd,YEnd,depth,playMove,constPlayer,tempBoard,v)
+                            v,changed = MinValuein(v,vnew,j)
+                            finalmovelist = CompilingEndListMin(v,vnew,changed,finalmovelist,j)
+                            availableMovesList =copy(holdMovesList)
+                            enemypos =copy(holdenemypos)
+                            depth = constDepth
+                            enemyx, enemyy =gatherenemypos(j,enemypos)
+                            reversingtakes(enemyx,enemyy,playMove,tempBoard)
+                            
+                            tempboardEditB(XEnd,YEnd,XStart,YStart,tempBoard)
+                            updatingtemppieces()
+                        else:
+                            playMove = 2
+                            vnew = minimax(depth,playMove,constPlayer,tempBoard,v)
+                            playMove = 1
+                            v, changed = MinValuein(v,vnew,j)
+                            finalmovelist = CompilingEndListMin(v,vnew,changed,finalmovelist,j)
+                            availableMovesList =copy(holdMovesList)
+                            enemypos =copy(holdenemypos)
+                            depth = constDepth
+                            enemyx, enemyy = gatherenemypos(j,enemypos)
+                            reversingtakes(enemyx,enemyy,playMove,tempBoard)
+                            tempboardEditB(XEnd,YEnd,XStart,YStart,tempBoard)
+                            updatingtemppieces()
+                end = time.time()
+                sumoftotal += (end - start)
+                branchtotal += 1
+                        
+        #make move here
+        if algo == True:
+            mean = sumoftotal / branchtotal
+            print("Mean time = ",mean)
+        end = time.time()
+        finaltime = (end - firststart)
+        print("Final time:",finaltime)
+        finaltotaltime += finaltime
+        totalcompmoves += 1
+        print("v",v)
+        finalMove, enemyArray = CompMoveB(finalmovelist,checkerBoard)
+    elif constPlayer == 2:
+        takingPiece = False
+        availableMovesW(checkerBoard)
+        holdenemypos =copy(enemypos)
+        j = -1
+        v = -10001
+        if priorityList != []:
+            availableMovesList = priorityList
+            takingPiece = True
+            holdenemypos =copy(enemypos)
+        holdMovesList = copy(availableMovesList)
+        finalmovelist = []
+        if len(availableMovesList) == 1: # to optimize, if only one move can be made, the whole algorithm is skipped
+            finalmovelist = [0]
+            algo = False
+        if algo == True:
+            for i in availableMovesList:
+                start = time.time()
+                playMove = 2 # making sure play move is back to original after minimax
+                j += 1
+                print("j",j)
+                tempBoard = deepcopy(checkerBoard)
+                availableMovesList =copy(holdMovesList)
+                updatingtemppieces() #updating the objects to the beginning positions
+                
+                resettemplist()
+                depth = constDepth
+                if takingPiece == False:
+                    chosenMove = i
+                    XStart = AlphaToNum[chosenMove[0]]
+                    YStart = int(chosenMove[1])
+                    XEnd = AlphaToNum[chosenMove[-2]]
+                    YEnd = int(chosenMove[-1])
+                    tempboardEditW(XStart,YStart,XEnd,YEnd,tempBoard)
+                    playMove = 1
+                    depth = depth - 1
+                    vnew =  minimax(depth,playMove,constPlayer,tempBoard,v)
+                    playMove = 2
+                    v, changed = MaxValuein(v,vnew,j)
+                    finalmovelist = CompilingEndListMax(v,vnew,changed,finalmovelist,j)
+                    availableMovesList =copy(holdMovesList)
+                    depth = constDepth
+                    resettemplist()
+                    tempboardEditW(XStart,YStart,XEnd,YEnd,tempBoard)
+                    updatingtemppieces()
+                if takingPiece == True:
+                    playMove =  2
+                    secondMove = False
+                    enemypos =copy(holdenemypos)
+                    chosenMove = i
+                    enemyTaken = enemypos[j]
+                    XStart = AlphaToNum[chosenMove[0]]
+                    YStart = int(chosenMove[1])
+                    XEnd = AlphaToNum[chosenMove[-2]]
+                    YEnd = int(chosenMove[-1])
+                    enemyx = int(enemyTaken[0])
+                    enemyy = int(enemyTaken[1])
+                    tempboardEditW(XStart,YStart,XEnd,YEnd,tempBoard)
+                    tempelimPiece(enemyx,enemyy,tempBoard)
+                    depth -= 1
+                    secondMove = secondaryMovecheck(XEnd,YEnd,playMove,tempBoard)
+                    if secondMove == True:
+                        vnew = minimaxsecondaryMove(XEnd,YEnd,depth,playMove,constPlayer,tempBoard,v)
+                        v,changed  = MaxValuein(v,vnew,j)
+                        finalmovelist = CompilingEndListMax(v,vnew,changed,finalmovelist,j)
+                        availableMovesList =copy(holdMovesList)
+                        enemypos =copy(holdenemypos)
+                        depth = constDepth
+                        enemyx, enemyy =gatherenemypos(j,enemypos)
+                        reversingtakes(enemyx,enemyy,playMove,tempBoard)
+                        tempboardEditW(XEnd,YEnd,XStart,YStart,tempBoard)
+                        updatingtemppieces()
+                    else:
+                        playMove = 1
+                        
+                        vnew = minimax(depth,playMove,constPlayer,tempBoard,v)
+                        v , changed = MaxValuein(v,vnew,j)
+                        finalmovelist = CompilingEndListMax(v,vnew,changed,finalmovelist,j)
+                        playMove = 2
+                        availableMovesList =copy(holdMovesList)
+                        enemypos =copy(holdenemypos)
+                        depth = constDepth
+                        enemyx, enemyy =gatherenemypos(j,enemypos)
+                        reversingtakes(enemyx,enemyy,playMove,tempBoard)
+                        tempboardEditW(XEnd,YEnd,XStart,YStart,tempBoard)
+                        updatingtemppieces()
+                end = time.time()
+                sumoftotal += (end - start)
+                branchtotal += 1
+        if algo == True:
+            mean = sumoftotal / branchtotal
+            print("Mean time = ",mean)
+        end = time.time()
+        finaltime = (end - firststart)
+        finaltotaltime += finaltime
+        totalcompmoves += 1
+        print("Final time:",finaltime)
+        print("v",v)  
+        enemypos =copy(holdenemypos)
+        finalMove, enemyArray = CompMoveW(finalmovelist,checkerBoard) 
+        print("Enemy Array:", enemyArray) 
+    return finalMove, enemyArray
+            
+
+
+
+def minimax(depth,playMove,constPlayer,checkerBoard,v): ## minimax algorithm
+    global availableMovesList
+    global priorityList
+    global enemypos
+    enemypos = []
+    availableMovesList = []
+    priorityMove = []
+    takingPiece = False
+    depth = depth - 1
+    currentdepth =copy(depth)
+    holdenemypos =copy(enemypos)
+    if playMove == 1:
+        tempavailableMovesB(checkerBoard)
+        j = -1
+        if priorityList != []:
+            availableMovesList = priorityList
+            takingPiece = True
+            holdenemypos =copy(enemypos)
+        holdMovesList =copy(availableMovesList)
+        for i in availableMovesList:
+            depth =copy(currentdepth)
+            playMove = 1
+            j += 1
+            tempBoard = deepcopy(checkerBoard)
+            availableMovesList =copy(holdMovesList)
+            if takingPiece == False:
+                chosenMove = i
+                XStart = AlphaToNum[chosenMove[0]]
+                YStart = int(chosenMove[1])
+                XEnd = AlphaToNum[chosenMove[-2]]
+                YEnd = int(chosenMove[-1])
+                tempboardEditB(XStart,YStart,XEnd,YEnd,tempBoard)
+                if len(varblackpieces) <= 1:
+                    v = 10000
+                    tempboardEditB(XEnd,YEnd,XStart,YStart,tempBoard)
+                if len(varwhitepieces) <= 1:
+                    v = -10000
+                    tempboardEditB(XEnd,YEnd,XStart,YStart,tempBoard)
+                
+                if depth > 0:
+                    playMove = 2
+                    vnew = minimax(depth,playMove,constPlayer,tempBoard,v)
+                    v, changed = MinValuein(v,vnew,j)
+                    playMove = 1
+                    enemypos =copy(holdenemypos)
+                    tempboardEditB(XEnd,YEnd,XStart,YStart,tempBoard)
+                else:
+                    #score evaluate
+                    for i in varwhitepieces:
+                        i.kingCheckW()
+                    for i in varblackpieces:
+                        i.kingCheckB()
+                    v = MinValue(v,j)
+                    tempboardEditB(XEnd,YEnd,XStart,YStart,tempBoard)
+                    
+                   
+                
+                    
+
+            if takingPiece == True:
+                gameend = False
+                chosenMove = i
+                enemyTaken = enemypos[j]
+                XStart = AlphaToNum[chosenMove[0]]
+                YStart = int(chosenMove[1])
+                XEnd = AlphaToNum[chosenMove[-2]]
+                YEnd = int(chosenMove[-1])
+                enemyx = int(enemyTaken[0])
+                enemyy = int(enemyTaken[1])
+                
+                tempboardEditB(XStart,YStart,XEnd,YEnd,tempBoard)
+                tempelimPiece(enemyx,enemyy,tempBoard)
+                holdeliminatedall, holdeliminatedblack, holdeliminatedwhite = savingeliminatedlist()
+                if len(varblackpieces) <= 1:
+                    v = 10000
+                    gameend = True
+                    enemypos =copy(holdenemypos)
+                    enemyx, enemyy =gatherenemypos(j,enemypos)
+                    reversingtakes(enemyx,enemyy,playMove,tempBoard)
+                    tempboardEditB(XEnd,YEnd,XStart,YStart,tempBoard)
+                if len(varwhitepieces) <= 1:
+                    v = -10000
+                    gameend = True
+                    enemypos =copy(holdenemypos)
+                    enemyx, enemyy =gatherenemypos(j,enemypos)
+                    reversingtakes(enemyx,enemyy,playMove,tempBoard)
+                    tempboardEditB(XEnd,YEnd,XStart,YStart,tempBoard)
+                if depth > 0 and gameend == False:
+                    secondMove = secondaryMovecheck(XEnd,YEnd,playMove,tempBoard)
+                    if secondMove == True:
+                        vnew = minimaxsecondaryMove(XEnd,YEnd,depth,playMove,constPlayer,tempBoard,v)
+                        enemypos =copy(holdenemypos)
+                        returningeliminatedlist(holdeliminatedall,holdeliminatedblack,holdeliminatedwhite)
+                        v,changed = MinValuein(v,vnew,j)
+                        enemyx, enemyy =gatherenemypos(j,enemypos)
+                        reversingtakes(enemyx,enemyy,playMove,tempBoard)
+                        tempboardEditB(XEnd,YEnd,XStart,YStart,tempBoard)
+                        
+                    else:   
+                        playMove = 2
+                        
+                        vnew = minimax(depth,playMove,constPlayer,tempBoard,v)
+                        returningeliminatedlist(holdeliminatedall,holdeliminatedblack,holdeliminatedwhite)
+                        v,changed = MinValuein(v,vnew,j)
+                        enemypos =copy(holdenemypos)
+                        playMove = 1
+                        enemyx, enemyy =gatherenemypos(j,enemypos)
+                        reversingtakes(enemyx,enemyy,playMove,tempBoard)
+                        tempboardEditB(XEnd,YEnd,XStart,YStart,tempBoard)
+                else:
+                    for i in varwhitepieces:
+                        i.kingCheckW()
+                    for i in varblackpieces:
+                        i.kingCheckB()
+                    v = MinValue(v,j)
+                    returningeliminatedlist(holdeliminatedall,holdeliminatedblack,holdeliminatedwhite)
+                    enemypos =copy(holdenemypos)
+                    enemyx, enemyy =gatherenemypos(j,enemypos)
+                    reversingtakes(enemyx,enemyy,playMove,tempBoard)
+                    tempboardEditB(XEnd,YEnd,XStart,YStart,tempBoard)
+        
+      
+             
+    elif playMove == 2: # whites move as ai
+        tempavailableMovesW(checkerBoard)
+        j = -1
+        if priorityList != []:
+            availableMovesList = priorityList
+            takingPiece = True
+            holdenemypos =copy(enemypos)
+        holdMovesList =copy(availableMovesList)  
+        for i in availableMovesList:
+            depth =copy(currentdepth)
+            j += 1
+            playMove = 2
+            availableMovesList =copy(holdMovesList)
+            tempBoard = deepcopy(checkerBoard)
+            wantedMove = i
+            if takingPiece == False:
+                chosenMove = i
+                XStart = AlphaToNum[chosenMove[0]]
+                YStart = int(chosenMove[1])
+                XEnd = AlphaToNum[chosenMove[-2]]
+                YEnd = int(chosenMove[-1]) # turn coordinates into integer form
+                tempboardEditW(XStart,YStart,XEnd,YEnd,tempBoard)
+                if len(varblackpieces) <= 1: # check for black loss
+                    v = 10000
+                    tempboardEditW(XEnd,YEnd,XStart,YStart,tempBoard)
+                if len(varwhitepieces) <= 1: # check for white loss
+                    v = -10000
+                    tempboardEditW(XEnd,YEnd,XStart,YStart,tempBoard)
+                if depth > 0:
+                    playMove = 1 # switch to black move
+                    vnew = minimax(depth,playMove,constPlayer,tempBoard,v) # loop again with new board state
+                    v, changed = MaxValuein(v,vnew,j)
+                    enemypos =copy(holdenemypos)
+                    playMove = 2
+                    tempboardEditW(XEnd,YEnd,XStart,YStart,tempBoard)
+                else: # evaluate
+                    for i in varwhitepieces:
+                        i.kingCheckW()
+                    for i in varblackpieces:
+                        i.kingCheckB()
+                    v = MaxValue(v,j)
+                    tempboardEditW(XEnd,YEnd,XStart,YStart,tempBoard) #set x and y coords back to original
+                    
+                    #setting object x and y back to original if this iteration has completed
+                    
+                
+            if takingPiece == True:
+                chosenMove = i
+                gameend = False
+                enemyTaken = enemypos[j]
+                XStart = AlphaToNum[chosenMove[0]]
+                YStart = int(chosenMove[1])
+                XEnd = AlphaToNum[chosenMove[-2]]
+                YEnd = int(chosenMove[-1])
+                enemyx = int(enemyTaken[0])
+                enemyy = int(enemyTaken[1])
+                tempboardEditW(XStart,YStart,XEnd,YEnd,tempBoard)
+                tempelimPiece(enemyx,enemyy,tempBoard)
+                holdeliminatedall, holdeliminatedblack, holdeliminatedwhite = savingeliminatedlist()
+                if len(varblackpieces) <= 1:
+                    v = 10000
+                    gameend = True
+                    enemypos =copy(holdenemypos)
+                    enemyx, enemyy =gatherenemypos(j,enemypos)
+                    reversingtakes(enemyx,enemyy,playMove,tempBoard)
+                    tempboardEditW(XEnd,YEnd,XStart,YStart,tempBoard)
+                if len(varwhitepieces) <= 1:
+                    v = -10000
+                    gameend = True
+                    enemypos =copy(holdenemypos)
+                    enemyx, enemyy =gatherenemypos(j,enemypos)
+                    reversingtakes(enemyx,enemyy,playMove,tempBoard)
+                    tempboardEditW(XEnd,YEnd,XStart,YStart,tempBoard)
+                if depth > 0 and gameend == False:
+                    secondMove = secondaryMovecheck(XEnd,YEnd,playMove,tempBoard)
+                    if secondMove == True:
+                        vnew = minimaxsecondaryMove(XEnd,YEnd,depth,playMove,constPlayer,tempBoard,v)
+                        returningeliminatedlist(holdeliminatedall,holdeliminatedblack,holdeliminatedwhite)
+                        enemypos =copy(holdenemypos)
+                        v,changed  = MaxValuein(v,vnew,j)
+                        enemyx, enemyy =gatherenemypos(j,enemypos)
+                        reversingtakes(enemyx,enemyy,playMove,tempBoard)
+                        tempboardEditW(XEnd,YEnd,XStart,YStart,tempBoard)
+                        
+                        
+                    else:
+                        playMove = 1
+                        
+                        vnew = minimax(depth,playMove,constPlayer,tempBoard,v)
+                        returningeliminatedlist(holdeliminatedall,holdeliminatedblack,holdeliminatedwhite)
+                        v, changed = MaxValuein(v,vnew,j)
+                        enemypos =copy(holdenemypos)
+                        playMove = 2
+                        enemyx, enemyy =gatherenemypos(j,enemypos)
+                        reversingtakes(enemyx,enemyy,playMove,tempBoard)
+                        tempboardEditW(XEnd,YEnd,XStart,YStart,tempBoard)
+                else:
+                    for i in varwhitepieces:
+                        i.kingCheckW()
+                    for i in varblackpieces:
+                        i.kingCheckB()
+                    v = MaxValue(v,j) 
+                    returningeliminatedlist(holdeliminatedall,holdeliminatedblack,holdeliminatedwhite)
+                    enemypos =copy(holdenemypos)
+                    enemyx, enemyy =gatherenemypos(j,enemypos)
+                    reversingtakes(enemyx,enemyy,playMove,tempBoard)
+                    tempboardEditW(XEnd,YEnd,XStart,YStart,tempBoard)
+    return v
+    #finding max / mini score for the algorithm
+    
+
+
+#////////Start of Varying Code for Multi,Single and No player\\\\\\\\#
+
+#code for multiple jumps
+def secondaryMoveB(x,y,checkerBoard):
+    global priorityList
+    global enemypos
+    availableMovesList= []
+    priorityList = []
+    enemypos = []
+    for i in blackpieces:
+        #taking away one to account for checkerboard number translations
+        if i.x == x and i.y == y-1:
+            i.kingCheckB()
+            i.diagonalForwardB(checkerBoard)
+            if i.isKing == True:
+                i.kingMoveB(checkerBoard) 
+            while priorityList != []:
+                playtype = 2 ##fixx
+                if playtype == 1 or playtype == 2:
+                    #black player movements
+                    for i in range (len(priorityList)):
+                        j = str(i+1)
+                        print(j,". ",*priorityList[i], sep="",end="  ")
+                    print("\n")
+                    list = blackpieceLocations()
+                    print("black",list)
+                    list = whitepieceLocations()
+                    print("white",list)
+                    list = constvarwhitepieceLocations()
+                    print("const var white",list)
+                    list = actualwhitepieceLocations()
+                    print("actual white",list)
+                    wantedMove = int(input("\nBlack, which move do you wish to do? (Use Integer)"))-1
+                    chosenMove = priorityList[wantedMove]
+                    enemyTaken = enemypos[wantedMove]
+                    XStart = AlphaToNum[chosenMove[0]]
+                    YStart = int(chosenMove[1])
+                    XEnd = AlphaToNum[chosenMove[-2]]
+                    YEnd = int(chosenMove[-1])
+                    enemyx = int(enemyTaken[0])
+                    enemyy = int(enemyTaken[1])
+                    boardEditB(XStart,YStart,XEnd,YEnd,checkerBoard)
+                    elimPiece(enemyx,enemyy,checkerBoard)
+                    boardPrint(checkerBoard)
+                    secondaryMoveB(XEnd,YEnd,checkerBoard)
+                if playtype == 3:
+                    #comp move
+                    print("Black's Move:")
+                    wantedMove = compInput(priorityList)
+                    chosenMove = priorityList[wantedMove]
+                    enemyTaken = enemypos[wantedMove]
+                    XStart = AlphaToNum[chosenMove[0]]
+                    YStart = int(chosenMove[1])
+                    XEnd = AlphaToNum[chosenMove[-2]]
+                    YEnd = int(chosenMove[-1])
+                    enemyx = int(enemyTaken[0])
+                    enemyy = int(enemyTaken[1])
+                    boardEditB(XStart,YStart,XEnd,YEnd,checkerBoard)
+                    elimPiece(enemyx,enemyy,checkerBoard)
+                    t.sleep(2)
+                    boardPrint(checkerBoard)
+                    secondaryMoveB(XEnd,YEnd,checkerBoard)
+
+def secondaryMoveW(x,y,checkerBoard):
+    global priorityList
+    global enemypos
+    availableMovesList= []
+    priorityList = []
+    enemypos = []
+    for i in whitepieces:
+        if i.x == x and i.y == (y-1):
+            i.kingCheckW()
+            i.diagonalForwardW(checkerBoard)
+            if i.isKing == True:
+                i.kingMoveW(checkerBoard) 
+            if len(priorityList) > 0:
+                playtype = 2
+                if playtype == 1 or playtype == 3:
+                    #ai move
+                    print("White's Move:")
+                    wantedMove = compInput(priorityList)
+                    chosenMove = priorityList[wantedMove]
+                    enemyTaken = enemypos[wantedMove]
+                    XStart = AlphaToNum[chosenMove[0]]
+                    YStart = int(chosenMove[1])
+                    XEnd = AlphaToNum[chosenMove[-2]]
+                    YEnd = int(chosenMove[-1])
+                    enemyx = int(enemyTaken[0])
+                    enemyy = int(enemyTaken[1])
+                    boardEditW(XStart,YStart,XEnd,YEnd,checkerBoard)
+                    elimPiece(enemyx,enemyy,checkerBoard)
+                    t.sleep(2)
+                    boardPrint(checkerBoard)
+                    secondaryMoveW(XEnd,YEnd,checkerBoard)
+                if playtype == 2:
+                    #white player moves
+                    for i in range (len(priorityList)):
+                        j = str(i+1)
+                        print(j,". ",*priorityList[i], sep="",end="  ")
+                    wantedMove = int(input("\nWhite, which move do you wish to do? (Use Integer)"))-1
+                    chosenMove = priorityList[wantedMove]
+                    enemyTaken = enemypos[wantedMove]
+                    XStart = AlphaToNum[chosenMove[0]]
+                    YStart = int(chosenMove[1])
+                    XEnd = AlphaToNum[chosenMove[-2]]
+                    YEnd = int(chosenMove[-1])
+                    enemyx = int(enemyTaken[0])
+                    enemyy = int(enemyTaken[1])
+                    boardEditW(XStart,YStart,XEnd,YEnd,checkerBoard)
+                    elimPiece(enemyx,enemyy,checkerBoard)
+                    boardPrint(checkerBoard)
+                    secondaryMoveW(XEnd,YEnd,checkerBoard)
+
+def secondaryMoveComp(x,y,playMove,enemyArray,checkerBoard):
+    global priorityList
+    global enemypos
+    availableMovesList= []
+    priorityList = []
+    enemypos = []
+    if playMove == 1:
+        for i in blackpieces:
+            if i.x == x and i.y == (y-1):
+                i.kingCheckB()
+                i.diagonalForwardB(checkerBoard)
+                if i.isKing == True:
+                    i.kingMoveB(checkerBoard) 
+                if len(priorityList) > 0:
+                    range = len(priorityList)
+                    if range != 0:
+                        choice = r.randint(0,range-1)
+                    else:
+                        choice = 0
+                    chosenMove = priorityList[choice]
+                    enemyTaken = enemypos[choice]
+                    enemyArray.append(enemyTaken)
+                    XStart = AlphaToNum[chosenMove[0]]
+                    YStart = int(chosenMove[1])
+                    XEnd = AlphaToNum[chosenMove[-2]]
+                    YEnd = int(chosenMove[-1])
+                    enemyx = int(enemyTaken[0])
+                    enemyy = int(enemyTaken[1])
+                    boardEditB(XStart,YStart,XEnd,YEnd,checkerBoard)
+                    elimPiece(enemyx,enemyy,checkerBoard)
+                    boardPrint(checkerBoard)
+                    enemyArray = secondaryMoveComp(XEnd,YEnd,playMove,enemyArray,checkerBoard)
+    elif playMove == 2:
+        for i in whitepieces:
+            if i.x == x and i.y == (y-1):
+                i.kingCheckW()
+                i.diagonalForwardW(checkerBoard)
+                if i.isKing == True:
+                    i.kingMoveW(checkerBoard) 
+                if len(priorityList) > 0:
+                    range = len(priorityList)
+                    if range != 0:
+                        choice = r.randint(0,range-1)
+                    else:
+                        choice = 0
+                    chosenMove = priorityList[choice]
+                    enemyTaken = enemypos[choice]
+                    enemyArray.append(enemyTaken)
+                    XStart = AlphaToNum[chosenMove[0]]
+                    YStart = int(chosenMove[1])
+                    XEnd = AlphaToNum[chosenMove[-2]]
+                    YEnd = int(chosenMove[-1])
+                    enemyx = int(enemyTaken[0])
+                    enemyy = int(enemyTaken[1])
+                    boardEditW(XStart,YStart,XEnd,YEnd,checkerBoard)
+                    elimPiece(enemyx,enemyy,checkerBoard)
+                    boardPrint(checkerBoard)
+                    enemyArray = secondaryMoveComp(XEnd,YEnd,playMove,enemyArray,checkerBoard)
+    return enemyArray
+
+        
+def secondaryMovecheck(x,y,playMove,checkerBoard):
+    global priorityList
+    availableMovesList = []
+    priorityList = []
+    list = []
+    
+    if playMove == 1:
+        check = False
+        for i in varblackpieces:
+            if i.x == x and i.y == (y-1):
+                i.kingCheckB()
+                i.diagonalForwardB(checkerBoard)
+            if i.isKing == True:
+                i.kingMoveB(checkerBoard)
+        if priorityList == [] and check == False: # no second take
+            check = False
+        if priorityList != []:
+            check = True
+        return check
+    elif playMove == 2:
+        check = False
+        for i in whitepieces:
+            print(i.x,i.y,x,y)
+        print("break")
+        for i in varwhitepieces:
+            print(i.x,i.y,x,y)
+            if i.x == x and i.y == (y): #minus 1 to account for difference
+                i.kingCheckW()
+                i.diagonalForwardW(checkerBoard)
+            if i.isKing == True:
+                i.kingMoveW(checkerBoard)
+        if priorityList == [] and check == False: # no second take
+            check = False
+        if priorityList != []:
+            check = True
+        return check
+            
+def minimaxsecondaryMove(x,y,depth,playMove,constPlayer,checkerBoard,v):
+    global priorityList
+    global enemypos
+    global availableMovesList
+    currentdepth =copy(depth)
+    availableMovesList = []
+    priorityList = []
+    enemypos = []
+    j = -1
+    if playMove == 1:
+        j = -1
+        
+        for i in varblackpieces:
+            if i.x == x and i.y == (y-1):
+                i.kingCheckB()
+                i.diagonalForwardB(checkerBoard)
+            if i.isKing == True:
+                i.kingMoveB(checkerBoard)
+        holdenemypos =copy(enemypos)
+        holdMovesList =copy(priorityList)
+        for i in priorityList:
+            secondMove = False
+            gameend = False
+            k = 0
+            depth =copy(currentdepth)
+            playMove = 1
+            priorityList =copy(holdMovesList)
+            j += 1
+            k+= 1
+            tempBoard = deepcopy(checkerBoard) # i tried to remove as many deepcopies as possible (i had 50+) as i noticed they are very slow
+            chosenMove = i
+            enemyTaken = enemypos[j]
+            XStart = AlphaToNum[chosenMove[0]]
+            YStart = int(chosenMove[1])
+            XEnd = AlphaToNum[chosenMove[-2]]
+            YEnd = int(chosenMove[-1])
+            enemyx = int(enemyTaken[0])
+            enemyy = int(enemyTaken[1]) 
+            tempboardEditB(XStart,YStart,XEnd,YEnd,tempBoard)
+            tempelimPiece(enemyx,enemyy,tempBoard)
+            holdeliminatedall, holdeliminatedblack, holdeliminatedwhite = savingeliminatedlist()
+            if len(varblackpieces) <= 1:
+                v = 10000
+                gameend = True
+                enemypos =copy(holdenemypos)
+                enemyx, enemyy =gatherenemypos(j,enemypos)
+                reversingtakes(enemyx,enemyy,playMove,tempBoard)
+                tempboardEditB(XEnd,YEnd,XStart,YStart,tempBoard)
+            if len(varwhitepieces) <= 1:
+                v = -10000
+                gameend = True
+                enemypos =copy(holdenemypos)
+                enemyx, enemyy =gatherenemypos(j,enemypos)
+                reversingtakes(enemyx,enemyy,playMove,tempBoard)
+                tempboardEditB(XEnd,YEnd,XStart,YStart,tempBoard)
+            if depth > 0 and gameend == False:
+                secondMove = secondaryMovecheck(XEnd,YEnd,playMove,tempBoard)
+                if secondMove == True:
+                    vnew = minimaxsecondaryMove(XEnd,YEnd,depth,playMove,constPlayer,tempBoard,v)
+                    returningeliminatedlist(holdeliminatedall,holdeliminatedblack,holdeliminatedwhite)
+                    enemypos =copy(holdenemypos)
+                    v,changed = MinValuein(v,vnew,j)
+                    enemyx, enemyy =gatherenemypos(j,enemypos)
+                    reversingtakes(enemyx,enemyy,playMove,tempBoard)
+                    tempboardEditB(XEnd,YEnd,XStart,YStart,tempBoard)
+                    
+                else:
+                    playMove = 2
+                    depth -= 1
+                    vnew = minimax(depth,playMove,constPlayer,tempBoard,v)
+                    returningeliminatedlist(holdeliminatedall,holdeliminatedblack,holdeliminatedwhite)
+                    enemypos =copy(holdenemypos)
+                    v,changed = MinValuein(v,vnew,j)
+                    playMove = 1
+                    enemyx, enemyy =gatherenemypos(j,enemypos)
+                    reversingtakes(enemyx,enemyy,playMove,tempBoard)
+                    tempboardEditB(XEnd,YEnd,XStart,YStart,tempBoard)
+            else:
+                #eval
+                for i in varwhitepieces:
+                    i.kingCheckW()
+                for i in varblackpieces:
+                    i.kingCheckB()
+                v = MinValue(v,j)
+                returningeliminatedlist(holdeliminatedall,holdeliminatedblack,holdeliminatedwhite)
+                enemypos =copy(holdenemypos)
+                enemyx, enemyy =gatherenemypos(j,enemypos)
+                reversingtakes(enemyx,enemyy,playMove,tempBoard)
+                tempboardEditB(XEnd,YEnd,XStart,YStart,tempBoard)
+        return v
+    elif playMove == 2:
+        j = -1
+        for i in varwhitepieces:
+            if i.x == x and i.y == y-1:
+                i.kingCheckW()
+                i.diagonalForwardW(checkerBoard)
+            if i.isKing == True:
+                i.kingMoveW(checkerBoard)
+        holdenemypos =copy(enemypos)
+        holdMovesList =copy(priorityList)
+        for i in priorityList:
+            secondMove = False
+            gameend = False
+            depth =copy(currentdepth)
+            playMove = 2
+            priorityList =copy(holdMovesList) # returning original values 
+            j += 1
+            tempBoard = deepcopy(checkerBoard)
+            chosenMove = i
+            enemyTaken = enemypos[j]
+            XStart = AlphaToNum[chosenMove[0]]
+            YStart = int(chosenMove[1])
+            XEnd = AlphaToNum[chosenMove[-2]]
+            YEnd = int(chosenMove[-1])
+            enemyx = int(enemyTaken[0])
+            enemyy = int(enemyTaken[1]) 
+            tempboardEditW(XStart,YStart,XEnd,YEnd,tempBoard)
+            tempelimPiece(enemyx,enemyy,tempBoard)
+            holdeliminatedall, holdeliminatedblack, holdeliminatedwhite = savingeliminatedlist()
+            if len(varblackpieces) <= 1:
+                v = 10000
+                gameend = True
+                enemypos =copy(holdenemypos)
+                enemyx, enemyy =gatherenemypos(j,enemypos)
+                reversingtakes(enemyx,enemyy,playMove,tempBoard)
+                tempboardEditW(XEnd,YEnd,XStart,YStart,tempBoard)
+            if len(varwhitepieces) <= 1:
+                v = -10000
+                gameend = True
+                enemypos =copy(holdenemypos)
+                enemyx, enemyy =gatherenemypos(j,enemypos)
+                reversingtakes(enemyx,enemyy,playMove,tempBoard)
+                tempboardEditW(XEnd,YEnd,XStart,YStart,tempBoard)
+            if depth > 0 and gameend == False:
+                secondMove = secondaryMovecheck(XEnd,YEnd,playMove,tempBoard)
+                if secondMove == True:
+                    vnew = minimaxsecondaryMove(XEnd,YEnd,depth,playMove,constPlayer,tempBoard,v)
+                    returningeliminatedlist(holdeliminatedall,holdeliminatedblack,holdeliminatedwhite)
+                    enemypos =copy(holdenemypos)
+                    v, changed = MaxValuein(v,vnew,j)
+                    enemyx, enemyy =gatherenemypos(j,enemypos)
+                    reversingtakes(enemyx,enemyy,playMove,tempBoard)
+                    tempboardEditW(XEnd,YEnd,XStart,YStart,tempBoard)
+                else:
+                    playMove = 1
+                    depth -= 1
+                    vnew = minimax(depth,playMove,constPlayer,tempBoard,v)
+                    returningeliminatedlist(holdeliminatedall,holdeliminatedblack,holdeliminatedwhite)
+                    enemypos =copy(holdenemypos)
+                    v, changed = MaxValuein(v,vnew,j)
+                    playMove = 2
+                    enemyx, enemyy =gatherenemypos(j,enemypos)
+                    reversingtakes(enemyx,enemyy,playMove,tempBoard)
+                    tempboardEditW(XEnd,YEnd,XStart,YStart,tempBoard)
+            else:
+                #eval
+                for i in varwhitepieces:
+                    i.kingCheckW()
+                for i in varblackpieces:
+                    i.kingCheckB()
+                v = MaxValue(v,j)
+                returningeliminatedlist(holdeliminatedall,holdeliminatedblack,holdeliminatedwhite)
+                enemypos =copy(holdenemypos)
+                enemyx, enemyy =gatherenemypos(j,enemypos)
+                reversingtakes(enemyx,enemyy,playMove,tempBoard)
+                tempboardEditW(XEnd,YEnd,XStart,YStart,tempBoard)
+        return v
+
+
+
+    
+# programme for moving a piece
+def movePieceB():
+    global availableMovesList
+    global priorityList
+    availableMovesB(checkerBoard)
+    if playtype == 1 or playtype == 2:
+        #black is main player and thus can be played in either single or multiplayer
+        if priorityList == []:
+            for i in range (len(availableMovesList)):
+                j = str(i+1)
+                print(j,". ",*availableMovesList[i], sep="",end="  ")
+            print("\n")
+            sanitized = False
+            while sanitized == False:
+                input1 = input("\nBlack, which move do you wish to do? (Use Integer)")
+                x = input1.isnumeric()
+                if x == True:
+                    wantedMove = int(input1) - 1
+                    if wantedMove < len(availableMovesList) and wantedMove >= 0:
+                        sanitized = True
+            chosenMove = availableMovesList[wantedMove]
+            XStart = AlphaToNum[chosenMove[0]]
+            YStart = int(chosenMove[1])
+            XEnd = AlphaToNum[chosenMove[-2]]
+            YEnd = int(chosenMove[-1])
+            boardEditB(XStart,YStart,XEnd,YEnd,checkerBoard)
+            boardPrint(checkerBoard)
+
+            
+            
+
+        else:
+            availableMovesList = priorityList
+            for i in range (len(availableMovesList)):
+                j = str(i+1)
+                print(j,". ",*availableMovesList[i], sep="",end="  ")
+            print("\n")
+            sanitized = False
+            while sanitized == False:
+                    input1 = input("\nBlack, which move do you wish to do? (Use Integer)")
+                    x = input1.isnumeric()
+                    if x == True:
+                        wantedMove = int(input1) - 1
+                        if wantedMove < len(availableMovesList) and wantedMove >= 0:
+                            sanitized = True
+            chosenMove = availableMovesList[wantedMove]
+            enemyTaken = enemypos[wantedMove]
+            XStart = AlphaToNum[chosenMove[0]]
+            YStart = int(chosenMove[1])
+            XEnd = AlphaToNum[chosenMove[-2]]
+            YEnd = int(chosenMove[-1])
+            enemyx = int(enemyTaken[0])
+            enemyy = int(enemyTaken[1])
+            boardEditB(XStart,YStart,XEnd,YEnd,checkerBoard)
+            elimPiece(enemyx,enemyy,checkerBoard)
+            boardPrint(checkerBoard)
+            secondaryMoveB(XEnd,YEnd,checkerBoard)
+    if playtype == 3:
+        #black plays as an ai (no player mode)
+        constPlayer = 1
+        finalMove, enemyArray = initialminimax(depth,playMove,constPlayer,checkerBoard)
+        removefinalpieces()
+    
+
+
+def UIMoveB(Move,availableMovesList):
+    playtype = 2 # fix the issue where playtype is required
+    if playtype == 1 or playtype == 2:
+        #black is main player and thus can be played in either single or multiplayer
+        print("Priority", priorityList)
+        if priorityList == []:
+            for i in range(len(availableMovesList)):
+                print(Move)
+                print(availableMovesList[i])
+                if Move == availableMovesList[i]:
+                    wantedMove = i
+            chosenMove = availableMovesList[wantedMove]
+            XStart = AlphaToNum[chosenMove[0]]
+            YStart = int(chosenMove[1])
+            XEnd = AlphaToNum[chosenMove[-2]]
+            YEnd = int(chosenMove[-1])
+            boardEditB(XStart,YStart,XEnd,YEnd,checkerBoard)
+            boardPrint(checkerBoard)
+        else:
+            print("TAKING")
+            availableMovesList = priorityList
+            for i in range(len(availableMovesList)):
+                if Move == availableMovesList[i]:
+                    wantedMove = i
+            chosenMove = availableMovesList[wantedMove]
+            enemyTaken = enemypos[wantedMove]
+            XStart = AlphaToNum[chosenMove[0]]
+            YStart = int(chosenMove[1])
+            XEnd = AlphaToNum[chosenMove[-2]]
+            YEnd = int(chosenMove[-1])
+            enemyx = int(enemyTaken[0])
+            enemyy = int(enemyTaken[1])
+            boardEditB(XStart,YStart,XEnd,YEnd,checkerBoard)
+            elimPiece(enemyx,enemyy,checkerBoard)
+            boardPrint(checkerBoard)
+    if playtype == 3:
+        constPlayer = 1
+        finalMove, enemyArray = initialminimax(depth,playMove,constPlayer,checkerBoard)
+        removefinalpieces()
+    print("pre return:")
+    boardPrint(checkerBoard)
+    print(checkerBoard)
+    return checkerBoard
+
+def UIMoveW(Move,availableMovesList):
+    playtype = 2 # fix this issue where playtype is required
+    if playtype == 1 or playtype == 2:
+        #black is main player and thus can be played in either single or multiplayer
+        if priorityList == []:
+            for i in range(len(availableMovesList)):
+                print(Move)
+                print(availableMovesList[i])
+                if Move == availableMovesList[i]:
+                    wantedMove = i
+            chosenMove = availableMovesList[wantedMove]
+            XStart = AlphaToNum[chosenMove[0]]
+            YStart = int(chosenMove[1])
+            XEnd = AlphaToNum[chosenMove[-2]]
+            YEnd = int(chosenMove[-1])
+            boardEditW(XStart,YStart,XEnd,YEnd,checkerBoard)
+            boardPrint(checkerBoard)
+
+            
+            
+
+        else:
+            availableMovesList = priorityList
+            for i in range(len(availableMovesList)):
+                if Move == availableMovesList[i]:
+                    wantedMove = i
+            chosenMove = availableMovesList[wantedMove]
+            enemyTaken = enemypos[wantedMove]
+            XStart = AlphaToNum[chosenMove[0]]
+            YStart = int(chosenMove[1])
+            XEnd = AlphaToNum[chosenMove[-2]]
+            YEnd = int(chosenMove[-1])
+            enemyx = int(enemyTaken[0])
+            enemyy = int(enemyTaken[1])
+            boardEditW(XStart,YStart,XEnd,YEnd,checkerBoard)
+            elimPiece(enemyx,enemyy,checkerBoard)
+            boardPrint(checkerBoard)
+    if playtype == 3:
+        #black plays as an ai (no player mode)
+        constPlayer = 1
+        finalMove, enemyArray = initialminimax(depth,playMove,constPlayer,checkerBoard)
+        removefinalpieces()
+    print("pre return:")
+    boardPrint(checkerBoard)
+    print(checkerBoard)
+    return checkerBoard
+
+def UIsecondMoveB(x,y,checkerBoard):
+    for i in blackpieces:
+        if i.x == x and i.y == y-1:
+            i.kingCheckB()
+            i.diagonalForwardB(checkerBoard)
+            if i.isKing == True:
+                i.kingMoveB(checkerBoard)
+        if priorityList != []:
+            playtype = 2
+            if playtype == 1 or playtype == 2:
+                for i in range(len(priorityList)):
+                    print("filler")
+                    
+
+                    
+
+
+
+
+
+#print(*availableMovesList, sep=" ") -- print code saved incase of error
+
+#procedures for moving white pieces
+def movePieceW():
+    global availableMovesList
+    global priorityList
+
+    availableMovesW(checkerBoard)
+    if playtype == 1 or playtype == 3:
+        constPlayer = 2
+        finalMove,enemyArray = initialminimax(depth,playMove,constPlayer,checkerBoard)
+        removefinalpieces()
+            
+    if playtype == 2:
+        if priorityList == []:
+            #extensive code for varying game modes
+            for i in range (len(availableMovesList)):
+                j = str(i+1)
+                print(j,". ",*availableMovesList[i], sep="",end="  ")
+            sanitized = False
+            while sanitized == False:
+                input1 = input("\nWhite, which move do you wish to do? (Use Integer)")
+                x = input1.isnumeric()
+                if x == True:
+                    wantedMove = int(input1) - 1
+                    if wantedMove < len(availableMovesList) and wantedMove >= 0:
+                        sanitized = True
+            chosenMove = availableMovesList[wantedMove]
+            XStart = AlphaToNum[chosenMove[0]]
+            YStart = int(chosenMove[1])
+            XEnd = AlphaToNum[chosenMove[-2]]
+            YEnd = int(chosenMove[-1])
+            boardEditW(XStart,YStart,XEnd,YEnd,checkerBoard)
+            boardPrint(checkerBoard)
+            
+        else:
+            availableMovesList = priorityList
+            for i in range (len(availableMovesList)):
+                j = str(i+1)
+                print(j,". ",*availableMovesList[i], sep="",end="  ")
+            sanitized = False
+            while sanitized == False: # sanitizing inputs to be only appropriate values
+                input1 = input("\nWhite, which move do you wish to do? (Use Integer)")
+                x = input1.isnumeric()
+                if x == True:
+                    wantedMove = int(input1) - 1
+                    if wantedMove < len(availableMovesList) and wantedMove >= 0:
+                        sanitized = True
+            chosenMove = availableMovesList[wantedMove]
+            enemyTaken = enemypos[wantedMove]
+            XStart = AlphaToNum[chosenMove[0]]
+            YStart = int(chosenMove[1])
+            XEnd = AlphaToNum[chosenMove[-2]]
+            YEnd = int(chosenMove[-1])
+            enemyx = int(enemyTaken[0])
+            enemyy = int(enemyTaken[1])
+            boardEditW(XStart,YStart,XEnd,YEnd,checkerBoard)
+            elimPiece(enemyx,enemyy,checkerBoard)
+            boardPrint(checkerBoard)
+            secondaryMoveW(XEnd,YEnd,checkerBoard)
+
+ 
+ #/////////End of Varying Code\\\\\\\\\#     
+   
+
+#boardedit procedures
+def boardEditW(XStart,YStart,XEnd,YEnd,checkerBoard):
+    checkerBoard[YStart-1][XStart] = 0
+    checkerBoard[YEnd-1][XEnd] = 2
+    for i in whitepieces:
+        i.searchPiece(XStart,YStart,XEnd,YEnd)
+
+def tempboardEditW(XStart,YStart,XEnd,YEnd,checkerBoard):
+    checkerBoard[YStart-1][XStart] = 0
+    checkerBoard[YEnd-1][XEnd] = 2
+    for i in varwhitepieces:
+        i.tempsearchPiece(XStart,YStart,XEnd,YEnd)
+
+
+def boardEditB(XStart,YStart,XEnd,YEnd,checkerBoard):
+    checkerBoard[YStart-1][XStart] = 0
+    checkerBoard[YEnd-1][XEnd] = 1
+    for i in blackpieces:
+        i.searchPiece(XStart,YStart,XEnd,YEnd)
+
+def tempboardEditB(XStart,YStart,XEnd,YEnd,checkerBoard):
+    checkerBoard[YStart-1][XStart] = 0
+    checkerBoard[YEnd-1][XEnd] = 1
+    for i in varblackpieces:
+        i.tempsearchPiece(XStart,YStart,XEnd,YEnd)
+    
+
+def initiate():
+    print("Do you wish to: \n1.Play Singleplayer \n2.Play Multiplayer \n3.Watch two AI play")
+    choice = int(input())
+    if choice > 3 or choice < 1:
+        initiate()
+    if choice == 1:
+        playtype = 1
+    elif choice == 2:
+        playtype = 2
+    else:
+        playtype = 3
+    return playtype
+
+def compInput(list):
+    length = len(list)
+    chosenmove = (r.randint(0,length-1))
+    return chosenmove
+    
+def MaxValue(v,j):
+    #print("final move goes to white")
+    vnew = evaluate()
+    if j == 0: # first go therefore nothing to compare to
+        v = vnew
+        return v
+    if vnew > v:
+        v = vnew
+    
+    return v
+
+def MaxValuein(v,vnew,j):
+    changed = False
+    if j == 0:
+        v = vnew
+        return v, changed
+    if vnew > v:
+        v = vnew
+        changed = True
+    return v, changed
+
+def CompilingEndListMax(v,vnew,changed,list,j):
+    if changed == True:
+        list = [j]
+    if vnew == v and changed == False:
+        list.append(j)
+    print(j)
+    print("vnew,",vnew)
+    print("v",v)
+    print(list)
+    return list
+
+def MaxValuefinal(v,list,j):
+    vnew = evaluate()
+    print(list)
+    print(j)
+    print("Max value final")
+    print(v)
+    print(vnew)
+    if vnew > v:
+        list = [j]
+    if vnew == v:
+        list.append(j)
+    print("list:",list)
+    return list
+
+
+
+
+
+
+def MinValue(v,j):
+    #print("final move goes to black")
+    vnew = evaluate()
+    if j == 0:
+        v = vnew
+        return v
+    if vnew < v:
+        v = vnew
+    
+    return v
+    #Room for alpha beta pruning
+
+def CompilingEndListMin(v,vnew,changed,list,j):
+    if changed == True:
+        list = [j]
+    if vnew == v and changed == False:
+        list.append(j)
+    return list
+
+def MinValuein(v,vnew,j):
+    changed = False
+    if j == 0:
+        v = vnew
+        return v, changed
+    if vnew < v:
+        v = vnew
+        changed = True
+
+    return v,changed
+
+
+def CompMoveB(finalmovelist,checkerBoard):
+    enemyArray = []
+    global availableMovesList
+    global priorityList
+    takingPiece = False
+    availableMovesB(checkerBoard)
+    if priorityList != []:
+        availableMovesList = priorityList
+        takingPiece = True
+    range = len(finalmovelist) # minus one to make it standard to start at 0 
+    if range != 1:
+        choice = r.randint(0,range-1)
+        enemyposchoice = finalmovelist[choice]
+    elif range == 1:
+        choice = 0
+        enemyposchoice = finalmovelist[0]
+    if takingPiece == False:
+        chosenMove = finalmovelist[choice]
+        move = availableMovesList[chosenMove]
+        XStart = AlphaToNum[move[0]]
+        YStart = int(move[1])
+        XEnd = AlphaToNum[move[-2]]
+        YEnd = int(move[-1])
+        boardEditB(XStart,YStart,XEnd,YEnd,checkerBoard)
+        boardPrint(checkerBoard)
+    if takingPiece == True:
+        chosenMove = finalmovelist[choice]
+        move = availableMovesList[chosenMove]
+        enemyTaken = enemypos[enemyposchoice]
+        enemyArray.append(enemyTaken)
+        XStart = AlphaToNum[move[0]]
+        YStart = int(move[1])
+        XEnd = AlphaToNum[move[-2]]
+        YEnd = int(move[-1])
+        enemyx = int(enemyTaken[0])
+        enemyy = int(enemyTaken[1])
+        boardEditB(XStart,YStart,XEnd,YEnd,checkerBoard)
+        elimPiece(enemyx,enemyy,checkerBoard)
+        boardPrint(checkerBoard)
+        enemyArray = secondaryMoveComp(XEnd,YEnd,playMove,enemyArray,checkerBoard)
+        normalizinglists()
+        resettemplist()
+    return [str((numToAlpha[XStart]) + str(YStart)) + str((numToAlpha[XEnd]) + str(YEnd))] , enemyArray
+
+
+
+
+def CompMoveW(finalmovelist,checkerBoard):
+    enemyArray = []
+    global availableMovesList
+    global priorityList
+    takingPiece = False
+    availableMovesW(checkerBoard)
+    
+    if priorityList != []:
+        availableMovesList = priorityList
+        takingPiece = True
+    range = len(finalmovelist) 
+    print(finalmovelist)
+    print(enemypos)
+    print(availableMovesList)
+    if range != 1: # randomly selecting moves that hold the same value to make gameplay more interesting
+        choice = r.randint(0,range-1)
+        enemyposchoice = finalmovelist[choice]
+    elif range == 1:
+        choice = 0
+        enemyposchoice = finalmovelist[0]
+    if takingPiece == False:
+        chosenMove = finalmovelist[choice]
+        move = availableMovesList[chosenMove]
+        XStart = AlphaToNum[move[0]]
+        YStart = int(move[1])
+        XEnd = AlphaToNum[move[-2]]
+        YEnd = int(move[-1])
+        boardEditW(XStart,YStart,XEnd,YEnd,checkerBoard)
+        boardPrint(checkerBoard)
+        normalizinglists()
+        resettemplist()
+    if takingPiece == True:
+        chosenMove = finalmovelist[choice]
+        move = availableMovesList[chosenMove]
+        print("enemypos",enemypos)
+        print(choice)
+        enemyTaken = enemypos[enemyposchoice]
+        enemyArray.append(enemyTaken)
+        XStart = AlphaToNum[move[0]]
+        YStart = int(move[1])
+        XEnd = AlphaToNum[move[-2]]
+        YEnd = int(move[-1])
+        enemyx = int(enemyTaken[0])
+        enemyy = int(enemyTaken[1])
+        boardEditW(XStart,YStart,XEnd,YEnd,checkerBoard)
+        elimPiece(enemyx,enemyy,checkerBoard)
+        boardPrint(checkerBoard)
+        enemyArray = secondaryMoveComp(XEnd,YEnd,playMove,enemyArray,checkerBoard)
+        normalizinglists()
+        resettemplist()
+    return [str(numToAlpha[XStart] + str(YStart)) + str((numToAlpha[XEnd]) + str(YEnd))], enemyArray
+
+
+
+def winratio():
+    whitelen = len(whitepieces)
+    blacklen = len(blackpieces)
+    ratio = whitelen - blacklen
+    return ratio
+
+
+def play(checkerBoard):
+    global playtype
+    global playMove
+    global depth
+    global finaltotaltime
+    global totalcompmoves
+    finaltotaltime = 0
+    totalcompmoves = 0
+    global constPlayer
+    global constDepth
+    constDepth = 6  
+    depth = constDepth
+    playtype = initiate()
+    playMove = 1
+    moveCount = 0
+    boardPrint(checkerBoard)
+    while (len(blackpieces) > 0) or (len(whitepieces) > 0):
+        if playMove == 1:
+            movePieceB()
+            moveCount += 1
+            playMove = 2
+            constPlayer = 1
+            if len(whitepieces) <= 1:  #checking for win
+                print("Black wins")
+                mean = (finaltotaltime / totalcompmoves)
+                print("Mean processing time",mean)
+                print("Turn count",moveCount)
+                score = len(blackpieces)
+                print("Score = ", score)
+                ratio = winratio()
+                break
+        elif playMove == 2:
+            movePieceW()
+            moveCount += 1
+            playMove = 1
+            constPlayer = 2
+            print(playMove)
+            if len(blackpieces) <= 1: # checking for win
+                print("White wins")
+                mean = (finaltotaltime / totalcompmoves)
+                print("Mean processing time",mean)
+                print("Turn count",moveCount)
+                score = len(whitepieces)
+                print("Score = ", score)
+                ratio = winratio()
+                break
+    
+    print(ratio) # - if black wins + if white wins represents how many pieces the winner has over the other.
+    file1 = open("timetxt","a")
+    mean = str(mean)
+    file1.write(mean)
+    file1.write("\n")
+    file1.close()
+
+
+def generate():
+    global playtype
+    global playMove
+    global depth
+    global finaltotaltime
+    global totalcompmoves
+    finaltotaltime = 0
+    totalcompmoves = 0
+    global constPlayer
+    constPlayer = 2
+    global constDepth
+    constDepth = 3  # depth of 5 is almost instant, 6 is a few seconds , 7+ takes quite a while
+    depth = constDepth
+    #playtype = initiate()
+    playMove = 1
+    moveCount = 0
+    
+    
+
+
+
+#play(checkerBoard) # tagged out to stop it from running when i save
+ 

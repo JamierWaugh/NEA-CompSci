@@ -1,0 +1,110 @@
+# Code for main menu of the program
+import pygame 
+
+
+# initializing the constructor 
+pygame.init() 
+
+# screen resolution 
+SCREEN_WIDTH = 600
+SCREEN_HEIGHT = 600
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT)) # opens window
+pygame.display.set_caption("Checkers")
+run = True
+
+
+
+# Define color constants for later use in drawing
+RED = (255, 0 , 0)
+WHITE = (255,255,255)
+KWHITE = (255,160,0)
+LBROWN = (222,184,135)
+DBROWN = (85,51,17)
+BLACK = (0,0,0)
+KBLACK = (128,0,128)
+MENUBROWN = (171,124,104)
+MENUDARK = (78,51,28)
+MENULIGHT = (95,64,37)
+
+# stores the width of the 
+# screen into a variable 
+width = screen.get_width() 
+
+# stores the height of the 
+# screen into a variable 
+height = screen.get_height() 
+
+# defining a font 
+smallFont = pygame.font.SysFont("Verdana",20) 
+titleFont = pygame.font.SysFont("Verdana",45)
+buttonFont = pygame.font.SysFont("Verdana", 30)
+
+# rendering a text written in 
+# this font 
+Quit = smallFont.render("Quit" , True , WHITE) 
+Title = titleFont.render("Checkers", True, WHITE)
+Play = buttonFont.render("Play", True, WHITE)
+Stats = buttonFont.render("Stats", True, WHITE)
+About = buttonFont.render("About", True, WHITE)
+Settings  = buttonFont.render("Settings", True, WHITE)
+
+
+def colourButton(x,y,w,l,fontType,string,changed,textX,textY): # Function to highlight button when hovered over with mouse
+    if x <= pos[0] <= x+w and y <= pos[1] <= y+l: 
+        pygame.draw.rect(screen,LBROWN,[x,y,w,l]) 
+        changed = fontType.render(str(string) , True , BLACK)
+        screen.blit(changed , (textX,textY))  
+        return changed
+        
+    else: 
+        pygame.draw.rect(screen,MENULIGHT,[x,y,w,l])
+        changed = fontType.render(str(string) , True , WHITE)  
+        screen.blit(changed , (textX,textY)) 
+        return changed
+
+
+while run == True: 
+    for event in pygame.event.get(): 
+        if event.type == pygame.QUIT: 
+            pygame.quit() 
+        if event.type == pygame.MOUSEBUTTONDOWN:  
+            pos = pygame.mouse.get_pos()
+            #if the mouse is clicked on the 
+            # button the game is terminated 
+            if width-70 <= pos[0] <= width and 0 <= pos[1] <= 40: 
+                pygame.quit() 
+            if 185 <= pos[0] <= 420 and 185 <= pos[1] <= 235:
+                print("Clicked play")
+
+
+    # fills the screen with a color 
+    screen.fill((MENUDARK)) 
+
+    # stores the (x,y) coordinates into 
+    # the variable as a tuple 
+    pos= pygame.mouse.get_pos() 
+
+    # if mouse is hovered on a button it 
+    # changes to lighter shade 
+    Quit = colourButton(width-80,0,100,25,smallFont,"Quit",Quit,width-70,0)
+    pygame.draw.rect(screen,MENUBROWN,[150,150,300,300]) # main menu centre box
+    
+    pygame.draw.rect(screen,RED,[100,50,400,50]) # title card
+    screen.blit(Title, [210,50]) # title text
+    
+    pygame.draw.rect(screen, MENULIGHT, [185,185,235,50]) # Play button
+    Play = colourButton(185,185,235,50,buttonFont,"Play", Play,260,185)
+    
+    pygame.draw.rect(screen, MENULIGHT, [185,245,235,50]) # Stats button
+    Stats = colourButton(185,245,235,50,buttonFont,"Stats", Stats,260,245)
+    
+    pygame.draw.rect(screen, MENULIGHT, [185,305,235,50]) # About button
+    About = colourButton(185,305,235,50,buttonFont,"About",About,260,305)
+    
+    pygame.draw.rect(screen, MENULIGHT, [185,365,235,50]) # Settings button
+    Settings = colourButton(185,365,235,50,buttonFont, "Settings", Settings, 260, 365)
+
+
+
+    # updates the frames of the game 
+    pygame.display.update() 

@@ -1,0 +1,428 @@
+# Code for main menu of the program
+import pygame 
+import CheckersGUI
+import time
+
+
+# initializing the constructor 
+pygame.init() 
+
+# screen resolution 
+SCREEN_WIDTH = 600
+SCREEN_HEIGHT = 600
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT)) # opens window
+pygame.display.set_caption("Checkers")
+run = True
+
+
+
+# Define color constants for later use in drawing
+RED = (255,0,0)
+INDICATOR = RED
+WHITE = (255,255,255) # white piece starting colour
+KWHITE = (255,160,0) # king white default colour
+LBROWN = (222,184,135) # light square colour for board
+DBROWN = (85,51,17) # dark square colour for board
+BLACK = (0,0,0) # black piece starting colour
+KBLACK = (128,0,128) # king black default colour
+MENUBROWN = (171,124,104) # menu brown
+MENUDARK = (78,51,28) # menu dark brown
+MENULIGHT = (95,64,37) # menu cream
+BLACKCONSTANT = (0,0,0) # constant black rgb
+WHITECONSTANT = (255,255,255) #constant white rgb
+LBROWNC = (222,184,135) # constant light brown rgb
+DBROWNC = (85,51,17) # constant dark brown rgb
+LBROWNB = (222,184,135) # board preset for light square
+DBROWNB = (85,51,17) # board preset for dark square
+BLACKP = (0,0,0) # black piece colour
+WHITEP = (255,255,255) # white piece colour
+YELLOW = (236,232,26) # yellow for indicator
+BLUE = (64,191,255) # blue piece colour
+REDGAME = (228,84,29) # red in game colour
+KINGRED = (139,0,0)# red colour scheme king colour
+KINGBLUE = (0,0,139) # blue colour scheme king colour
+
+selectedP = 3 # setting default until account system is created
+selectedB = 2
+#LBROWN 222,184,135
+#menudark 78,51,28
+#menu light 95,64,37
+#old menu brown 171,124,104
+# claret 127,23,52
+#dark purple 83,0,28
+#light purple 199,70,70
+#light orange 255,94,70
+#light blue 172,188,205
+
+# stores the width of the 
+# screen into a variable 
+width = screen.get_width() 
+
+# stores the height of the 
+# screen into a variable 
+height = screen.get_height() 
+
+# defining a font 
+smallFont = pygame.font.SysFont("Verdana",20) 
+titleFont = pygame.font.SysFont("Verdana",45)
+buttonFont = pygame.font.SysFont("Verdana", 30)
+smallButton = pygame.font.SysFont("Verdana", 25)
+textFont = pygame.font.SysFont("Verdana", 15)
+
+# rendering a text written in 
+# this font 
+#Main Menu
+Quit = smallFont.render("Quit" , True , WHITE) #quit button font
+Title = titleFont.render("Checkers", True, WHITE) # title font
+Play = buttonFont.render("Play", True, WHITE) # play button font
+Stats = buttonFont.render("Stats", True, WHITE) # stats button font
+About = buttonFont.render("About", True, WHITE) # about button font
+Settings  = buttonFont.render("Settings", True, WHITE) # settings button font
+Back = smallFont.render("Back", True, WHITE) # back button font
+
+#Play page
+Singleplayer = buttonFont.render("Singleplayer", True, WHITE) # singleplayer button font
+Multiplayer = buttonFont.render("Multiplayer", True, WHITE) # mutliplayer button font
+Normal = buttonFont.render("Normal", True, WHITE) # normal difficulty button font
+Hard  = buttonFont.render("Hard", True, WHITE) # hard difficulty button font
+Continue = buttonFont.render("Continue", True, WHITE) #continue button font
+
+#About page
+Next = textFont.render("Next", True, WHITE) # navigation buttons for the about page
+Prev = textFont.render("Prev", True, WHITE)
+
+about1 = textFont.render("How does this software work?", True, WHITE) # text for the about page, to have each line seperate multiple renders must occur
+about2 = textFont.render("► When it is your turn, click ",True,WHITE)
+about3 = textFont.render("on the piece you wish to ", True, WHITE)
+about4 = textFont.render("move and then the move", True, WHITE)
+about5 = textFont.render("indicator that represents " ,True, WHITE)
+about6 = textFont.render("the move you desire.", True, WHITE)
+about7 = textFont.render("► Difficulty establishes how ", True, WHITE)
+about8 = textFont.render("many moves into the future ",True, WHITE)
+about9 = textFont.render("the AI looks. Normal ",True, WHITE)
+about10 = textFont.render("difficulty is 5, while ",True, WHITE)
+about11 = textFont.render("hard difficulty is 7.",True, WHITE)
+
+about12 = textFont.render("How does checkers work? ",True, WHITE)
+about13 = textFont.render("► Black always moves first",True, WHITE)
+about14 = textFont.render("► A piece becomes king if",True, WHITE)
+about15 = textFont.render("it reaches the other side",True, WHITE)
+about16 = textFont.render("of the board to its start",True, WHITE)
+about17 = textFont.render("► A player is always forced",True, WHITE)
+about18 = textFont.render("to capture if possible",True, WHITE)
+
+#Settings
+PieceC = smallFont.render("Piece", True, WHITE) #text for settings page
+BoardC = smallFont.render("Board", True, WHITE)
+Save = smallFont.render("Save", True, WHITECONSTANT)
+
+def colourButton(x,y,w,l,fontType,string,changed,textX,textY): # Function to highlight button when hovered over with mouse
+    pos = pygame.mouse.get_pos()
+    if x <= pos[0] <= x+w and y <= pos[1] <= y+l: 
+        pygame.draw.rect(screen,LBROWN,[x,y,w,l]) 
+        changed = fontType.render(str(string) , True , BLACK)
+        screen.blit(changed , (textX,textY))  
+        return changed
+        
+    else: 
+        pygame.draw.rect(screen,MENULIGHT,[x,y,w,l])
+        changed = fontType.render(str(string) , True , WHITE)  
+        screen.blit(changed , (textX,textY)) 
+        return changed
+    
+def playButton(Back,Singleplayer, Multiplayer, Normal, Hard, Continue): # Function for play button press
+    backPressed = False
+    multiSelected = False
+    singleSelected = False
+    normal = False
+    hard = False
+    while backPressed == False: #while back button is not pressed
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                if width - 70 <= pos[0] <= width and 0 <= pos[1] <= 40:
+                    backPressed = True # If back button is pressed, go back to page before
+                elif 185 <= pos[0] <=  420 and 245 <= pos[1] <= 295: # if multiplayer button is selected
+                    multiSelected = True
+                    singleSelected = False
+                elif 185 <= pos[0] <= 420 and 185 <= pos[1] <= 235: # if singleplayer button is selected
+                    singleSelected = True
+                    multiSelected = False
+                elif singleSelected == True and 185 <= pos[0] <= 420 and 305 <= pos[1] <= 355: # if singelplayer is already selected and normal difficulty is chosen
+                    normal = True
+                    hard = False
+                elif normal ==  True and 185 <= pos[0] <= 420 and 485 <= pos[1] <= 535: # if continue button is pressed while normal difficulty is chosen, load normal game
+                    pygame.quit()
+                    CheckersGUI.play(2,3, WHITEP , BLACKP, LBROWNB, DBROWNB,INDICATOR,KWHITE,KBLACK)
+                elif hard == True and 185 <= pos[0] <= 420 and 485 <= pos[1] <= 535: # if continue button is pressed while hard difficulty is chosen, load game in hard mode
+                    pygame.quit()
+                    CheckersGUI.play(2,5, WHITEP, BLACKP, LBROWNB, DBROWNB,INDICATOR,KWHITE,KBLACK)
+                elif singleSelected == True and 195 <= pos[0] <= 420 and 365 <= pos[1] <= 415: # if hard mode button is pressed while singleplayer is selected
+                    hard = True
+                    normal = False
+                elif multiSelected == True and 185 <= pos[0] <= 420 and 485 <= pos[1] <= 535: # if continue button is chosen while multiplayer is selected
+                    pygame.quit()
+                    CheckersGUI.play(1,1 , WHITEP, BLACKP, LBROWNB, DBROWNB,INDICATOR,KWHITE,KBLACK)  
+                else:
+                    multiSelected = False # reset if clicked elsewhere
+                    singleSelected = False
+                    normal = False
+                    hard = False
+                    
+
+        pos = pygame.mouse.get_pos()
+        screen.fill((MENUDARK)) 
+        Back = colourButton(width-80,0,100,25,smallFont,"Back",Back,width-70,0 )
+        pygame.draw.rect(screen,MENUBROWN,[150,150,300,300]) # main menu centre box
+        pygame.draw.rect(screen,RED,[100,50,400,50]) # title card
+        screen.blit(Title, [190,45]) # title text
+        pygame.draw.rect(screen, MENULIGHT, [185,185,235,50]) # Singleplayer button
+        Singleplayer = colourButton(185,185,235,50,buttonFont,"Singleplayer", Singleplayer,200,190)
+        pygame.draw.rect(screen, MENULIGHT, [185,245,235,50]) # Multiplayer button
+        Multiplayer = colourButton(185,245,235,50,buttonFont,"Multiplayer", Multiplayer,200,250)
+        pygame.draw.rect(screen, MENULIGHT, [185,305,235,50]) # Normal button
+        Normal = colourButton(185,305,235,50,buttonFont,"Normal",Normal,200,310)
+        pygame.draw.rect(screen, MENULIGHT, [185,365,235,50]) # Hard button
+        Hard = colourButton(185,365,235,50,buttonFont, "Hard", Hard, 200, 370)
+        if multiSelected == True: # if multiplayer is chosen, highlight it and create continue button
+            pygame.draw.rect(screen,MENULIGHT, [ 185, 485, 235, 50])
+            Continue = colourButton(185,485,235,50,buttonFont, "Continue?", Continue, 200 , 485)
+            pygame.draw.rect(screen, LBROWN, [185,245,235,50])
+            Multiplayer = buttonFont.render("Multiplayer" , True , BLACK)  
+            screen.blit(Multiplayer , (200,250))
+            normal = False
+            hard = False
+        if singleSelected == True: # if singleplayer is chosen, highlight it
+            pygame.draw.rect(screen, LBROWN, [185,185,235,50])
+            Singleplayer = buttonFont.render("Singleplayer" , True , BLACK)  
+            screen.blit(Singleplayer , (200,190))
+        if normal == True: # if singleplayer is chosen and normal is chosen, create continue button
+            pygame.draw.rect(screen,MENULIGHT, [ 185, 485, 235, 50])
+            Continue = colourButton(185,485,235,50,buttonFont, "Continue?", Continue, 200 , 485)
+            pygame.draw.rect(screen, LBROWN, [185,305,235,50])
+            Normal = buttonFont.render("Normal" , True , BLACK)  
+            screen.blit(Normal , (200,310))
+        if hard == True: # if singleplayer is chosen and hard is chosen, create continue button
+            pygame.draw.rect(screen,MENULIGHT, [ 185, 485, 235, 50])
+            Continue = colourButton(185,485,235,50,buttonFont, "Continue?", Continue, 200 , 485)
+            pygame.draw.rect(screen, LBROWN, [185,365,235,50])
+            Hard = buttonFont.render("Hard" , True , BLACK)  
+            screen.blit(Hard , (200,370))
+
+
+
+
+            
+        
+        pygame.display.update()
+
+def aboutButton(Back,Next, Prev): # opens the about page once pressed
+    backPressed = False
+    activePage = 1 # page 1 is opened
+    while backPressed == False: # while back button is not pressed
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                if width - 70 <= pos[0] <= width and 0 <= pos[1] <= 40:
+                    backPressed = True
+                if 380 <= pos[0] <= 420 and 425 <= pos[1] <= 445 and activePage == 1: # if next button pressed, open next page
+                    activePage = 2
+                if 185 <= pos[0] <= 225 and 425 <= pos[1] <= 445 and activePage == 2: # if previous page button is pressed, open previous page
+                    activePage = 1
+                
+    
+        pos = pygame.mouse.get_pos()
+        screen.fill((MENUDARK)) 
+        Back = colourButton(width-80,0,100,25,smallFont,"Back",Back,width-70,0 )
+        pygame.draw.rect(screen,MENUBROWN,[150,150,300,300]) # main menu centre box
+        pygame.draw.rect(screen,RED,[100,50,400,50]) # title card
+        pygame.draw.rect(screen,MENULIGHT, [185,185,235,230])
+        if activePage == 1:
+            pygame.draw.rect(screen,MENULIGHT, [380,425,40,20])
+            Next = colourButton(380,425,40,20,textFont, "Next", Next, 382, 425)
+            screen.blit(Next, [382,425]) #next button created
+            screen.blit(Title, [190,45]) # title text
+            outputPage1() # blit text for page 1
+        if activePage == 2:
+            pygame.draw.rect(screen,MENULIGHT, [185,425,40,20])
+            Prev = colourButton(185,425,40,20,textFont, "Prev", Prev, 190 , 425) # previous slide button created
+            screen.blit(Title, [190,45]) # title text
+            outputPage2() # blit text for page 2
+
+        pygame.display.update()
+
+def outputPage1():# output each line of text for page 1
+    screen.blit(about1, [185,185]) 
+    screen.blit(about2,[185, 205])
+    screen.blit(about3, [205,225])
+    screen.blit(about4, [205, 245])
+    screen.blit(about5, [205,265])
+    screen.blit(about6, [205,285])
+    screen.blit(about7, [185,315])
+    screen.blit(about8, [205,335])
+    screen.blit(about9, [205,355])
+    screen.blit(about10, [205,375])
+    screen.blit(about11, [205,395])
+
+def outputPage2(): #output each line of text for page 2
+    screen.blit(about12, [185,185])
+    screen.blit(about13, [185,205])
+    screen.blit(about14, [185,235])
+    screen.blit(about15, [205,255])
+    screen.blit(about16, [205,275])
+    screen.blit(about17, [185,305])
+    screen.blit(about18, [205,325])
+
+
+
+
+def settingsButton(Back, PieceC, BoardC, Save, origPiece, origBoard):
+    backPressed = False
+    selectedP = origPiece
+    selectedB = origBoard
+    while backPressed == False:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                if width - 70 <= pos[0] <= width and 0 <= pos[1] <= 40:
+                    backPressed = True
+                if 275 <= pos[0] <=  310 and 225 <= pos[1] <= 260 and selectedB != 1:
+                    # include save feature eventually
+                    selectedP = 1  # square for piece colourway 1 chosen
+                if 320 <= pos[0] <= 355 and 225 <= pos[1] <= 260 and selectedB != 2:
+                    selectedP = 2 # square for piece colourway 2 chosen
+                if 365 <= pos[0] <= 400 and 225 <= pos[1] <= 260 and selectedB != 3:
+                    selectedP = 3 # square for piece colourway 3 chosen
+                if 275 <= pos[0] <=  310 and 285 <= pos[1] <= 320 and selectedP != 1:
+                    selectedB = 1 # square for board colourway 1 chosen
+                if 320 <= pos[0] <= 355 and 285 <= pos[1] <= 320 and selectedP != 2:
+                    selectedB = 2 # square for board colourway 2 chosen
+                if 365 <= pos[0] <= 400 and 285 <= pos[1] <= 320 and selectedP  != 3:
+                    selectedB = 3 # square for board colourway 3 choseb
+                if 265 <= pos[0] <= 340 and 385 <= pos[1] <= 410:
+                    return selectedP, selectedB #if save button pressed, return choices
+        
+        pos = pygame.mouse.get_pos()
+        screen.fill((MENUDARK)) 
+        pygame.draw.rect(screen,MENUBROWN, [185,185,235,230])
+        pygame.draw.rect(screen,MENULIGHT,[195,225,70,35])
+        screen.blit(PieceC , [200, 230])
+        pygame.draw.rect(screen,MENULIGHT, [ 195, 285, 70,35])
+        screen.blit(BoardC, [200, 290]) # load screen and add two text boxes to indicate which colourway square impacts which game feature
+
+        pygame.draw.polygon(screen,REDGAME, [[275,225], [310,225], [275,260]]) # represents triangle of colour with red and blue gameplay
+        pygame.draw.polygon(screen,BLUE, [[275,260], [310,260], [310,225]])
+        if (275 <= pos[0] <=  310 and 225 <= pos[1] <= 260) or selectedP == 1: # first triangle (blue and red)
+            highlightTriangle([275,225],[310,225],[275,260],[310,260])
+        
+        pygame.draw.polygon(screen,DBROWN, [[320,225], [320, 260], [355,225]]) #second triangle (brown and light brown)
+        pygame.draw.polygon(screen,LBROWN, [[355,225], [320,260],[355,260]])
+        if (320 <= pos[0] <=355 and 225<= pos[1] <= 260) or selectedP == 2:
+            highlightTriangle([320,225], [355,225], [320,260], [355,260])
+        
+
+        pygame.draw.polygon(screen, BLACKCONSTANT, [[365,225], [400,225], [365, 260]])
+        pygame.draw.polygon(screen,WHITECONSTANT, [[400,225],[365,260], [400,260]]) # third trianlge (black and white)
+        if (365<= pos[0] <= 400 and 225 <= pos[1] <= 260) or selectedP == 3:
+            highlightTriangle([365,225], [400,225], [365,260], [400,260]) 
+
+        pygame.draw.polygon(screen,REDGAME, [[275,285], [310,285], [275,320]]) # represents triangle of colour with red and blue gameplay
+        pygame.draw.polygon(screen,BLUE, [[275,320], [310,320], [310,285]])
+        if (275 <= pos[0] <=  310 and 285 <= pos[1] <= 320) or selectedB == 1: # first triangle (blue and red)
+            highlightTriangle([275,285],[310,285],[275,320],[310,320])
+        
+        pygame.draw.polygon(screen,DBROWN, [[320,285], [320, 320], [355,285]]) #second triangle (brown and light brown)
+        pygame.draw.polygon(screen,LBROWN, [[355,285], [320,320],[355,320]])
+        if (320 <= pos[0] <=355 and 285<= pos[1] <= 320) or selectedB == 2:
+            highlightTriangle([320,285], [355,285], [320,320], [355,320])
+        
+
+        pygame.draw.polygon(screen, BLACKCONSTANT, [[365,285], [400,285], [365, 320]]) # third triangle (black and white)
+        pygame.draw.polygon(screen,WHITECONSTANT, [[400,285],[365,320], [400,320]])
+        if (365<= pos[0] <= 400 and 285 <= pos[1] <= 320) or selectedB == 3:
+            highlightTriangle([365,285], [400,285], [365,320], [400,320])
+        
+        Back = colourButton(width-80,0,100,25,smallFont,"Back",Back,width-70,0 )
+        pygame.draw.rect(screen,MENULIGHT, [265, 385,75,25]) # save button, only needed when change made
+
+        Save = colourButton(265, 385 , 75,25, smallFont, "Save", Save, 275, 385)
+        
+        pygame.display.update()
+    return origPiece, origBoard # return original colours if save button is not pressed
+
+
+def highlightTriangle(tl, tr, bl, br,): # function to outline triangle when hovered over or chosen
+    pygame.draw.polygon(screen,BLACK, [[tl[0]-2, tl[1] - 2], [tr[0]+2, tr[1]-2],[bl[0] -2, bl[1] +2]], 2)
+    pygame.draw.polygon(screen,BLACK, [[bl[0] - 2, bl[1] + 2], [tr[0]+2, tr[1]-2], [br[0] + 2, br[1] + 2]], 2)
+
+
+while run == True: 
+    for event in pygame.event.get(): 
+        if event.type == pygame.QUIT: 
+            pygame.quit() 
+        if event.type == pygame.MOUSEBUTTONDOWN:  
+            pos = pygame.mouse.get_pos()
+            #if the mouse is clicked on the 
+            # button the game is terminated 
+            if width-70 <= pos[0] <= width and 0 <= pos[1] <= 40: 
+                pygame.quit() #quit button closes program
+            if 185 <= pos[0] <= 420 and 185 <= pos[1] <= 235:
+                playButton(Back,Singleplayer, Multiplayer, Normal, Hard, Continue) # if play button is pressed, load play page
+            if 185 <= pos[0] <= 420 and 305 <= pos[1] <= 355:
+                aboutButton(Back, Next, Prev)
+            if 185<= pos[0] <= 420 and 365 <= pos[1] <= 415:
+                selectedP, selectedB = settingsButton(Back, PieceC, BoardC, Save, selectedP, selectedB)
+                if selectedP == 1 or selectedB == 1:
+                    INDICATOR = YELLOW  #if red and blue is in any aspect, change move indicator to yellow to avoid clash
+                if selectedP == 1: # if red and blue chosen as piece colour
+                    BLACKP = REDGAME
+                    WHITEP = BLUE
+                    KWHITE = KINGBLUE
+                    KBLACK = KINGRED
+                if selectedP == 2: #if brown and cream chosen as piece colour
+                    BLACKP = DBROWNC
+                    WHITEP = LBROWNC
+                if selectedP == 3: #if black and white chosen as piece colour
+                    BLACKP = BLACKCONSTANT
+                    WHITEP = WHITECONSTANT
+                if selectedB == 1: #if red and blue chosen as board colour
+                    LBROWNB = BLUE
+                    DBROWNB = REDGAME
+                if selectedB == 2: #if brown and cream chosen as board colour
+                    LBROWNB = LBROWNC
+                    DBROWNB = DBROWNC
+                if selectedB == 3: # if black and white chosen as board colour
+                    LBROWNB = BLACKCONSTANT
+                    DBROWNB = WHITECONSTANT
+    # fills the screen with a color 
+    screen.fill((MENUDARK)) 
+
+    # stores the (x,y) coordinates into 
+    # the variable as a tuple 
+    pos= pygame.mouse.get_pos() 
+
+    # if mouse is hovered on a button it 
+    # changes to lighter shade 
+    Quit = colourButton(width-80,0,100,25,smallFont,"Quit",Quit,width-70,0)
+    pygame.draw.rect(screen,MENUBROWN,[150,150,300,300]) # main menu centre box
+    pygame.draw.rect(screen,RED,[100,50,400,50]) # title card
+    screen.blit(Title, [190,45]) # title text
+    pygame.draw.rect(screen, MENULIGHT, [185,185,235,50]) # Play button
+    Play = colourButton(185,185,235,50,buttonFont,"Play", Play,200,190)
+    pygame.draw.rect(screen, MENULIGHT, [185,245,235,50]) # Stats button
+    Stats = colourButton(185,245,235,50,buttonFont,"Stats", Stats,200,250)
+    pygame.draw.rect(screen, MENULIGHT, [185,305,235,50]) # About button
+    About = colourButton(185,305,235,50,buttonFont,"About",About,200,310)
+    pygame.draw.rect(screen, MENULIGHT, [185,365,235,50]) # Settings button
+    Settings = colourButton(185,365,235,50,buttonFont, "Settings", Settings, 200, 370)
+
+
+
+    # updates the frames of the game 
+    pygame.display.update() 

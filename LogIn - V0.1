@@ -1,0 +1,70 @@
+file = open("playerLog", "r")
+
+
+def returnUsernameList(file):
+    Username = []
+    count = 0
+    for name in file: # for every name in file
+        count += 1
+        print(name)
+        for i in range(len(name)):
+            if name[i] != ",":
+                Username.append(name[i]) # add value to the list
+            if name[i] == ",":
+                Username.append("&") # if comma hit (username over), add the line number and then add identifers to differentiate from other data
+                Username.append(count)
+                Username.append("$")
+                break
+        continue
+    print(Username)
+    return Username
+
+
+def compileList(userList):
+    Names = []
+    string = ""
+    for i in range(len(userList)):
+        
+        if userList[i] != "$" :
+            string += str(userList[i])
+        else:
+            string+= str(userList[i])
+            Names.append(string)
+            string = ""
+    return Names
+
+def takeInput(compiledUser):
+    #make it through interface
+    inputName = input("Enter Username")
+    Found = False
+    for i in compiledUser: # loop the compiledUser list
+        length = len(i)
+        newString = ""
+        for x in range(len(i)):
+            if x == (length - 3):
+                break
+            newString += i[x]
+        print(newString)
+        if newString == inputName: # linear search
+            Found = True
+            return i
+            
+    if Found == False:
+        return -1
+
+def lineNumber(user,file): # prints line at user
+    userLine = int(user[-2])
+    file = open("playerLog","r")
+    print(userLine)
+    lines = file.readlines()[userLine - 1]
+    print(lines)
+
+
+            
+userList = returnUsernameList(file)
+print(userList)
+compiledUser = compileList(userList)
+print(compiledUser)
+User = takeInput(compiledUser)
+if User != -1:
+    number = lineNumber(User,file)

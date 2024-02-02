@@ -1,0 +1,146 @@
+file = open("playerLog", "r")
+
+
+alphabet = {"a":0,"b":1,"c":2, "d":3, "e":4,"f":5,"g":6,"h":7,"i":8,"j":9,"k":10, "l":11, "m":12,"n":13,"o":14,"p":15,"q":16,"r":17,"s":18, "t":19, "u":20,"v":21,"w":22,"x":23,"y":24,"z":25}
+
+def returnUsernameList(file):
+    Username = []
+    count = 0
+    for name in file: # for every name in file
+        count += 1
+        for i in range(len(name)):
+            if name[i] != ",":
+                Username.append(name[i]) # add value to the list
+            if name[i] == ",":
+                Username.append("&") # if comma hit (username over), add the line number and then add identifers to differentiate from other data
+                Username.append(count)
+                Username.append("$")
+                break
+        continue
+    return Username
+
+
+def compileList(userList): #compiles list of individual values into larger string values
+    Names = []
+    string = ""
+    for i in range(len(userList)):
+        if userList[i] != "$" :
+            string += str(userList[i])
+        else:
+            string+= str(userList[i])
+            Names.append(string)
+            string = ""
+    return Names
+
+def sortList(compiledNames): # Bubble sort
+    print(compiledNames, "start")
+    swapped = True
+    swappedInside = False
+    while swapped == True:
+        swapCount = 0
+        swappedInside = False
+        
+        for i in range(len(compiledNames)-1):
+            #if i == 0: # factor out the key inside the text file
+                #i = 1
+            name1 = str(compiledNames[i])
+            name2 = str(compiledNames[i+1])
+            print(compiledNames)
+            if alphabet[str(name1[0]).lower()] > alphabet[str(name2[0]).lower()]:
+                print(name1, ">", name2)
+                temp = compiledNames[i]
+                lineNum = name1[-2]
+                newLineNum = name2[-2]
+                compiledNames[i] = compiledNames[i+1]
+                compiledNames[i] = rewrite(compiledNames[i], lineNum)
+                compiledNames[i+1] = temp
+                compiledNames[i+1] = rewrite(compiledNames[i+1], newLineNum)
+                swapCount += 1
+        if swapCount == 0  or i== len(compiledNames) -1:
+            swapped = False
+            print(compiledNames)
+    print(compiledNames, "final")
+    return compiledNames
+
+                
+def rewrite(stringVal, lineNum):
+    holder = []
+    newString = ""
+    for i in stringVal:
+        holder.append(i)
+    holder.pop(-2)
+    holder.insert(-1,lineNum)
+    for x in range(len(holder)):
+        newString += holder[x]
+    return newString
+
+def firstComma(stringVal):
+    string1 = ""
+    for i in range(len(stringVal)):
+        if stringVal[i] == ",":
+            return string1
+        string1 += stringVal[i]
+        
+def firstAND(stringVal):
+    string1 = ""
+    for i in range(len(stringVal)):
+        if stringVal[i] == "&":
+            return string1
+        string1 += stringVal[i]
+
+
+
+
+def takeInput(compiledUser):
+    #make it through interface
+    inputName = input("Enter Username")
+    Found = False
+    for i in compiledUser: # loop the compiledUser list
+        length = len(i)
+        newString = ""
+        for x in range(len(i)): # start of linear search make binary search later
+            if x == (length - 3):
+                break
+            newString += i[x]
+        print(newString)
+        if newString == inputName: # linear search
+            Found = True
+            return i
+    if Found == False:
+        return -1
+
+def lineNumber(user,file): # prints line at user
+    userLine = int(user[-2])
+    file = open("playerLog","r")
+    print(userLine)
+    lines = file.readlines()[userLine - 1]
+    print(lines)
+
+def sortFile(compiledUser):
+    file = open("playerLog", "r")
+    lines = file.readlines()
+    for i in range(len(lines)):
+        if firstAND(compiledUser[i]) != firstComma(lines[i]):
+            file = open("playerLog", "w")
+            string1 = compiledUser[i]
+            print(string1)
+            temp = lines[int(string1[-2])-1]
+            print(lines[int(string1[-2])-1])
+            print(lines[i])
+            lines[int(string1[-2])-1] == lines[i]
+            lines[i] = temp
+            print(compiledUser)
+            print(lines)
+            file.writelines(lines)
+            file.close()
+    file.close()
+    
+userList = returnUsernameList(file)
+print(userList)
+compiledUser = compileList(userList)
+compiledUser = sortList(compiledUser)
+compiledUser = sortFile(compiledUser)
+print(compiledUser)
+User = takeInput(compiledUser)
+if User != -1:
+    number = lineNumber(User,file)

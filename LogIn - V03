@@ -1,0 +1,149 @@
+from copy import copy
+
+alphabet = {"a":0,"b":1,"c":2, "d":3, "e":4,"f":5,"g":6,"h":7,"i":8,"j":9,"k":10, "l":11, "m":12,"n":13,"o":14,"p":15,"q":16,"r":17,"s":18, "t":19, "u":20,"v":21,"w":22,"x":23,"y":24,"z":25}
+
+def returnUsernameList(file):
+    Username = []
+    count = 0
+    for name in file: # for every name in file
+        count += 1
+        for i in range(len(name)):
+            if name[i] != ",":
+                Username.append(name[i]) # add value to the list
+            if name[i] == ",":
+                Username.append("&") # if comma hit (username over), add the line number and then add identifers to differentiate from other data
+                Username.append(count)
+                Username.append("$")
+                break
+        continue
+    return Username
+
+
+def compileList(userList): #compiles list of individual values into larger string values
+    Names = []
+    string = ""
+    for i in range(len(userList)):
+        if userList[i] != "$" :
+            string += str(userList[i])
+        else:
+            string+= str(userList[i])
+            Names.append(string)
+            string = ""
+    return Names
+
+def sortList(compiledNames, changeLineNum): # Bubble sort
+    swapped = True
+    while swapped == True:
+        swapCount = 0
+        for i in range(len(compiledNames)-1):
+            name1 = str(compiledNames[i])
+            name2 = str(compiledNames[i+1])
+            if alphabet[str(name1[0]).lower()] > alphabet[str(name2[0]).lower()]:
+                print(name1, ">", name2)
+                temp = compiledNames[i]
+                if changeLineNum == True:
+                    lineNum = name1[-2]
+                    newLineNum = name2[-2]
+                    compiledNames[i] = compiledNames[i+1]
+                    compiledNames[i] = rewrite(compiledNames[i], lineNum)
+                    compiledNames[i+1] = temp
+                    compiledNames[i+1] = rewrite(compiledNames[i+1], newLineNum) # swap positions and change line number in the footer.
+                elif changeLineNum == False:
+                    compiledNames[i] = compiledNames[i+1]
+                    compiledNames[i+1] = temp
+                swapCount += 1
+        if swapCount == 0  or i == len(compiledNames) -1: # if no swap is completed or the end of the list is reached
+            swapped = False
+    return compiledNames
+
+                
+def rewrite(stringVal, lineNum): # rewrite a string to make the line in the footer match with the actual line it should be found at
+    holder = []
+    newString = ""
+    for i in stringVal:
+        holder.append(i)
+    holder.pop(-2)
+    holder.insert(-1,lineNum)
+    for x in range(len(holder)):
+        newString += holder[x]
+    return newString
+
+def firstComma(stringVal): # creates a string of the whole line up to the first comma, i.e. the username
+    string1 = ""
+    for i in range(len(stringVal)):
+        if stringVal[i] == ",":
+            return string1
+        string1 += stringVal[i]
+        
+def firstAND(stringVal): # creates a string of the whole username but without the footer
+    string1 = ""
+    for i in range(len(stringVal)):
+        if stringVal[i] == "&":
+            return string1
+        string1 += stringVal[i]
+
+
+
+
+def takeInput(compiledUser):
+    #make it through interface
+    inputName = input("Enter Username")
+    Found = False
+    for i in compiledUser: # loop the compiledUser list
+        length = len(i)
+        newString = ""
+        for x in range(len(i)): # start of linear search make binary search later
+            if x == (length - 3):
+                break
+            newString += i[x]
+        print(newString)
+        if newString == inputName: # linear search
+            Found = True
+            return i
+    if Found == False:
+        return -1
+
+def lineNumber(user,file): # prints line at user
+    userLine = int(user[-2]) -1
+    file = open("playerLog","r")
+    print(userLine)
+    lines = file.readlines()[userLine]
+    print(lines, "here")
+    file.close()
+
+def sortFile(noSwitchcompiledUser,SwitchcompiledUser): # iterative sort
+    file = open("playerLog", "r")
+    lines = file.readlines() # create a list of all lines in the file.
+    file.close()
+    sortedList = []
+    changed = False
+    for i in range(len(lines)):
+        if firstAND(SwitchcompiledUser[i]) != firstComma(lines[i]): # compare just the usernames, nothing extra
+            string1 = noSwitchcompiledUser[i]
+            string2 = SwitchcompiledUser[i]
+            sortedList.append(lines[int(string1[-2])-1])
+            changed = True
+        if changed == True:
+            print(sortedList)
+            file = open("playerLog", "w")
+            file.writelines(sortedList)
+            file.close()
+    
+file = open("playerLog", "r")
+userList = returnUsernameList(file)
+file.close()
+print(userList)
+compiledUser = compileList(userList)
+holder = copy(compiledUser)
+nonSwapped = sortList(compiledUser, False)
+swappedUser = sortList(holder, True)
+sortFile(nonSwapped,swappedUser)
+print(swappedUser)
+User = takeInput(swappedUser)
+if User != -1:
+    file = open("playerLog", "r")
+    number = lineNumber(User,file)
+    file.close()
+
+
+

@@ -1,0 +1,230 @@
+from copy import copy
+import pygame
+
+pygame.init()
+
+alphabet = {"a":0,"b":1,"c":2, "d":3, "e":4,"f":5,"g":6,"h":7,"i":8,"j":9,"k":10, "l":11, "m":12,"n":13,"o":14,"p":15,"q":16,"r":17,"s":18, "t":19, "u":20,"v":21,"w":22,"x":23,"y":24,"z":25}
+
+SCREEN_WIDTH = 600
+SCREEN_HEIGHT = 600
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT)) # opens window
+pygame.display.set_caption("Log-In")
+run = True
+
+WHITE = (255,255,255) # white piece starting colour
+BLACK = (0,0,0)
+MENUBROWN = (171,124,104) # menu cream
+SELECTEDCREAM = (204,153,102)
+MENUDARK = (78,51,28) # menu dark brown
+MENULIGHT = (95,64,37) # menu light brown
+
+RED = (255,0,0)
+TYPEBOX = MENUBROWN
+
+# defining a font 
+smallFont = pygame.font.SysFont("Verdana",20) 
+titleFont = pygame.font.SysFont("Verdana",45)
+buttonFont = pygame.font.SysFont("Verdana", 30)
+smallButton = pygame.font.SysFont("Verdana", 25)
+textFont = pygame.font.SysFont("Verdana", 15)
+
+
+Title = titleFont.render("Checkers", True, WHITE) # title font
+Login = buttonFont.render("Log-in", True, WHITE)
+
+usernameString = ""
+Username = buttonFont.render(usernameString, True, WHITE)
+
+def returnUsernameList(file):
+    Username = []
+    count = 0
+    for name in file: # for every name in file
+        count += 1
+        for i in range(len(name)):
+            if name[i] != ",":
+                Username.append(name[i]) # add value to the list
+            if name[i] == ",":
+                Username.append("&") # if comma hit (username over), add the line number and then add identifers to differentiate from other data
+                Username.append(count)
+                Username.append("$")
+                break
+        continue
+    return Username
+
+
+def compileList(userList): #compiles list of individual values into larger string values
+    Names = []
+    string = ""
+    for i in range(len(userList)):
+        if userList[i] != "$" :
+            string += str(userList[i])
+        else:
+            string+= str(userList[i])
+            Names.append(string)
+            string = ""
+    return Names
+
+def sortList(compiledNames, changeLineNum): # Bubble sort
+    swapped = True
+    while swapped == True:
+        swapCount = 0
+        for i in range(len(compiledNames)-1):
+            name1 = str(compiledNames[i])
+            name2 = str(compiledNames[i+1])
+            if alphabet[str(name1[0]).lower()] > alphabet[str(name2[0]).lower()]:
+                print(name1, ">", name2)
+                temp = compiledNames[i]
+                if changeLineNum == True:
+                    lineNum = name1[-2]
+                    newLineNum = name2[-2]
+                    compiledNames[i] = compiledNames[i+1]
+                    compiledNames[i] = rewrite(compiledNames[i], lineNum)
+                    compiledNames[i+1] = temp
+                    compiledNames[i+1] = rewrite(compiledNames[i+1], newLineNum) # swap positions and change line number in the footer.
+                elif changeLineNum == False:
+                    compiledNames[i] = compiledNames[i+1]
+                    compiledNames[i+1] = temp
+                swapCount += 1
+        if swapCount == 0  or i == len(compiledNames) -1: # if no swap is completed or the end of the list is reached
+            swapped = False
+    return compiledNames
+
+                
+def rewrite(stringVal, lineNum): # rewrite a string to make the line in the footer match with the actual line it should be found at
+    holder = []
+    newString = ""
+    for i in stringVal:
+        holder.append(i)
+    holder.pop(-2)
+    holder.insert(-1,lineNum)
+    for x in range(len(holder)):
+        newString += holder[x]
+    return newString
+
+def firstComma(stringVal): # creates a string of the whole line up to the first comma, i.e. the username
+    string1 = ""
+    for i in range(len(stringVal)):
+        if stringVal[i] == ",":
+            return string1
+        string1 += stringVal[i]
+        
+def firstAND(stringVal): # creates a string of the whole username but without the footer
+    string1 = ""
+    for i in range(len(stringVal)):
+        if stringVal[i] == "&":
+            return string1
+        string1 += stringVal[i]
+
+
+
+
+def takeInput(compiledUser):
+    #make it through interface
+    inputName = input("Enter Username")
+    Found = False
+    for i in compiledUser: # loop the compiledUser list
+        length = len(i)
+        newString = ""
+        for x in range(len(i)): # start of linear search make binary search later
+            if x == (length - 3):
+                break
+            newString += i[x]
+        print(newString)
+        if newString == inputName: # linear search
+            Found = True
+            return i
+    if Found == False:
+        return -1
+
+def lineNumber(user,file): # prints line at user
+    userLine = int(user[-2]) -1
+    file = open("playerLog.txt","r")
+    print(userLine)
+    lines = file.readlines()[userLine]
+    print(lines, "here")
+    file.close()
+
+def sortFile(noSwitchcompiledUser,SwitchcompiledUser): # iterative sort
+    file = open("playerLog.txt", "r")
+    lines = file.readlines() # create a list of all lines in the file.
+    file.close()
+    sortedList = []
+    changed = False
+    for i in range(len(lines)):
+        string1 = noSwitchcompiledUser[i]
+        #if str(lines[int(string1[-2])-1])[-2] + str(lines[int(string1[-2])-1])[-1] != "\n": #fix error with no \n on final line
+            #sortedList.append(str(lines[int(string1[-2])-1]) + "\n")
+        #else:
+        sortedList.append(str(lines[int(string1[-2])-1]))
+    print(sortedList)
+    file = open("playerLog.txt", "w")
+    file.writelines(sortedList)
+    file.close()
+
+def createUser():
+    file = open("playerLog.txt.txt","r")
+    inputUser = input("Enter Username, no special characters allowed")
+    string = ""
+    for i in inputUser:
+        if i.isalnum() == True:
+            string += i
+    print(string)
+
+
+
+        
+            
+Selected = False
+while run == True:
+    
+    for event in pygame.event.get(): 
+        
+        if event.type == pygame.QUIT: 
+            pygame.quit() 
+        if event.type == pygame.MOUSEBUTTONDOWN:  
+            pos = pygame.mouse.get_pos()
+            if  200 <= pos[0] <= 405 and 285 <= pos[1] <= 345:
+                TYPEBOX = SELECTEDCREAM
+                Selected = True
+            else:
+                TYPEBOX = MENUBROWN
+                Selected = False
+        
+        
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_a and Selected == True:
+            #keys = pygame.key.get_pressed()
+            print("here")
+            usernameString += "a"
+            if len(usernameString) <= 11:
+                Username = buttonFont.render(usernameString, True, WHITE)
+            print(usernameString)
+    pos = pygame.mouse.get_pos()
+    screen.fill((MENUDARK)) 
+    pygame.draw.rect(screen,MENUBROWN,[150,150,300,300]) # main menu centre box
+    pygame.draw.rect(screen,RED,[100,50,400,50]) # title card
+    pygame.draw.rect(screen,MENULIGHT, [185,185,235,230])
+    pygame.draw.rect(screen,TYPEBOX, [200, 285, 205, 60])
+    pygame.draw.rect(screen,BLACK,[200, 285, 205, 60], 3)
+    screen.blit(Title, [190,45]) # title text
+    screen.blit(Login, [255,190])
+    screen.blit(Username, [205,290])
+    pygame.display.update()
+
+file = open("playerLog.txt", "r")
+userList = returnUsernameList(file)
+file.close()
+print(userList)
+compiledUser = compileList(userList)
+holder = copy(compiledUser)
+nonSwapped = sortList(compiledUser, False)
+swappedUser = sortList(holder, True)
+sortFile(nonSwapped,swappedUser)
+print(swappedUser)
+User = takeInput(swappedUser)
+if User != -1:
+    file = open("playerLog.txt", "r")
+    number = lineNumber(User,file)
+    file.close()
+
+
+

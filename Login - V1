@@ -1,0 +1,273 @@
+from copy import copy
+import pygame
+def LogInfunction(secondLogin): # passes an integer representing first or second log in
+    pygame.init()
+
+    alphabet = {"a":0,"b":1,"c":2, "d":3, "e":4,"f":5,"g":6,"h":7,"i":8,
+                "j":9,"k":10, "l":11, "m":12,"n":13,"o":14,"p":15,"q":16,
+                "r":17,"s":18, "t":19, "u":20,"v":21,"w":22,"x":23,
+                "y":24,"z":25} # dictionary that holds all alphabet to integer conversions
+
+    SCREEN_WIDTH = 600 #screen width
+    SCREEN_HEIGHT = 600 # screen height
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT)) # opens window
+    pygame.display.set_caption("Log-In")
+    run = True
+
+    WHITE = (255,255,255) # white piece starting colour
+    BLACK = (0,0,0)
+    MENUBROWN = (171,124,104) # menu cream
+    SELECTEDCREAM = (204,153,102)
+    MENUDARK = (74,55,40) # menu dark brown
+    MENULIGHT = (95,64,37) # menu light brown
+    #74,55,40
+
+    RED = (255,0,0)
+    TYPEBOX = MENUBROWN
+
+    # defining a font 
+    smallFont = pygame.font.SysFont("Verdana",20) 
+    titleFont = pygame.font.SysFont("Verdana",45)
+    buttonFont = pygame.font.SysFont("Verdana", 30)
+    smallButton = pygame.font.SysFont("Verdana", 25)
+    textFont = pygame.font.SysFont("Verdana", 15)
+
+
+    Title = titleFont.render("Checkers", True, WHITE) # title font
+    Login = buttonFont.render("Log-in", True, WHITE) #Log in text font
+    re_enterUsername = buttonFont.render("Re-enter user", True, WHITE) # re-enter username font
+    helpText1 = textFont.render("Enter either an existing user", True, WHITE) # text at the bottom to help user
+    helpText2 = textFont.render("or register a new one", True, WHITE)
+    Login2 = buttonFont.render("Player 2 Log-in", True, WHITE)
+
+    usernameString = ""
+    Username = buttonFont.render(usernameString, True, WHITE) #username string font
+
+    def firstComma(stringVal): # creates a string of the whole line up to the first comma, i.e. the username
+        string1 = ""
+        for i in range(len(stringVal)):
+            if stringVal[i] == ",":
+                return string1
+            string1 += stringVal[i]
+
+    def lineNumber(user): # prints line at user
+        file = open("playerLog.txt","r")
+        lines = file.readlines()
+        for i in range(len(lines)):
+            if firstComma(lines[i]).lower() == user.lower():
+                number = i
+                break
+        file.close()
+        print(number, "line")
+        return number
+
+    def sortFile(): # iterative sort
+        file = open("playerLog.txt", "r")
+        lines = file.readlines() # create a list of all lines in the file.
+        file.close()
+        sorted = False
+        while sorted == False:
+            swappedCount = 0
+            for i in range(len(lines) - 1):
+                if greaterTHAN(splitString(firstComma(lines[i])) , splitString(firstComma(lines[i+1]))) == True:
+                    temp = copy(lines[i])
+                    lines[i] = copy(lines[i+1])
+                    lines[i+1] = copy(temp) # changed to a bubble sort that looks at whole string rather than just first letters
+                    swappedCount += 1
+            if swappedCount == 0:
+                sorted = True
+        print(lines, "sorted")
+        file = open("playerLog.txt", "w")
+        file.writelines(lines)
+        file.close()
+
+    def compileFileList(lines): # used to turn the file values into a list of just the username
+        newLines = []
+        for i in lines:
+            newLines.append(firstComma(i)) # appends the line in file up to the first comma (the username)
+        print(newLines)
+        return(newLines)
+
+
+    def logIn(count, Selected, usernameString1, TYPEBOX, secondLogin): #using recursion to check the username's match
+        returned = False # start while loop
+        usernameString = "" # make username string blank
+        while returned == False:
+            for event in pygame.event.get(): 
+                if event.type == pygame.QUIT: 
+                    pygame.quit() #quit the program
+                if event.type == pygame.MOUSEBUTTONDOWN:  
+                    pos = pygame.mouse.get_pos()
+                    if  200 <= pos[0] <= 405 and 285 <= pos[1] <= 345: # if text box clicked, selected = True
+                        TYPEBOX = SELECTEDCREAM
+                        Selected = True
+                    else:
+                        TYPEBOX = MENUBROWN # deselect text box if not clicked
+                        Selected = False
+                if event.type == pygame.KEYDOWN and Selected == True:
+                    if event.key == pygame.K_RETURN and usernameString != "" and len(usernameString) > 2: #if user presses return to enter the current string as the usernmae
+                        #usernameString = ""
+                        Selected = True
+                        if count == 0: # if first iteration, iterate again to check username's match
+                            count = 1 #increment count
+                            usernameString1, returned = logIn(count, Selected, usernameString, TYPEBOX, secondLogin) #runs twice to ensure username is the same twice # not working when a typo occurs (recursively goes deeper, can't terminate)
+                            if returned == True:
+                                return usernameString1 , returned #return username as terminating conditions met
+                        elif count == 1:
+                            if usernameString.lower() == usernameString1.lower():
+                                returned = True # make sure while loop ends
+                                return usernameString1 , returned # return matching / correct username
+                            else:
+                                count = 0 # if doesn't match set count to 0 to start process again
+                                usernameString1, returned = logIn(count, Selected, "", TYPEBOX) #made sure username getting passed in was empty (so it could act like a new search again)
+                                return usernameString1, returned # wasn't returning from this point so None value was being returned
+                    elif event.key == pygame.K_BACKSPACE: # delete last value of string
+                        usernameString = usernameString[:-1]
+                    elif str(event.unicode).isalpha() == True and len(usernameString ) < 10: #only allowing alphabet values as it keeps the program simpler and easier to manage sanitisation
+                        usernameString += event.unicode # add whatever alphabet value pressed. No numbers or symbols to simplify process
+                        print(usernameString)
+            pos = pygame.mouse.get_pos()
+            screen.fill((MENUDARK)) 
+            pygame.draw.rect(screen,MENUBROWN,[150,150,300,300]) # main menu centre box
+            pygame.draw.rect(screen,RED,[100,50,400,50]) # title card
+            pygame.draw.rect(screen,MENULIGHT, [185,185,235,230])
+            pygame.draw.rect(screen,TYPEBOX, [200, 285, 205, 60])
+            pygame.draw.rect(screen,BLACK,[200, 285, 205, 60], 2) # black highlighting for buttons
+            pygame.draw.rect(screen,BLACK,[185,185,235,230], 2) #centre dark brown highlighting
+            pygame.draw.rect(screen,BLACK,[100,50,400,50], 2) #title highlight
+            pygame.draw.rect(screen,BLACK,[150,150,300,300], 2) # centre light brown highlighting
+            screen.blit(Title, [190,45]) # title text
+            if count == 0 and secondLogin == False:
+                screen.blit(Login, [250,190]) # if on first iteraton, show Login text
+            if count ==0 and secondLogin == True:
+                screen.blit(Login2, [188, 190])
+            if count == 1: 
+                screen.blit(re_enterUsername, [190, 190]) # if second iteration, show re-enter text
+            Username = buttonFont.render(usernameString, True, WHITE) # render the Username text inside text box
+            screen.blit(Username, [205,290])
+            screen.blit(helpText1, [ 195, 360,])
+            screen.blit(helpText2, [ 220, 380])
+            pygame.display.update()
+
+    def conductLogIn(count, Selected, returned, TYPEBOX, secondLogin): # starts log in process and returns the Username
+        run = True
+        while run == True:
+            if returned == False:
+                usernameString, returned = logIn(count, Selected, "", TYPEBOX, secondLogin)
+                print(usernameString , "string")
+            run = False
+        return usernameString
+
+    def splitString(string): # splits username string into multiple integer values so they can be compared in the bubble sort
+        stringList = []
+        intList = []
+        for i in range(len(string)):
+            stringList.append(string[i])
+        for i in stringList:
+            num = alphabet[i.lower()]
+            intList.append(num)
+        return intList
+
+    def greaterTHAN(list1, list2): # established if one split string is greater than the other, returns True / False
+        print(list1)
+        print(list2)
+        if len(list1) >= len(list2):
+            for i in range(len(list1)-1):
+                if len(list2) == i: # returns False if the the end of the smaller list is reached without a return (implies lists match up to a certain point but one is shorter than the other) 
+                    return False # E.g. aa is given as less than aaron
+                elif list1[i] > list2[i]:
+                    return True # greater than
+                elif list1[i] < list2[i]:
+                    return False # less than
+                elif list1[i] == list2[i]:
+                    continue # if same value, next iteration
+        if len(list1) < len(list2):
+            for i in range(len(list2)-1):
+                if len(list1) == i:
+                    return False
+                elif list1[i] > list2[i]:
+                    return True
+                elif list1[i] < list2[i]:
+                    return False
+                elif list1[i] == list2[i]:
+                    continue
+
+            
+    def getLineNumber(User): # gets the line number for a specific username in the file
+        number = lineNumber(User)
+        return number
+
+    def binarySearch(User): #binary search
+        file = open("playerLog.txt", "r")
+        lines = file.readlines() # creates list of all lines in the file
+        print(lines, "lines")
+        lines = compileFileList(lines)
+        print(lines, "lines")
+        file.close()
+        run = True
+        found = False
+        while run == True: #while not found
+            print(len(lines), "length")
+            if len(lines) % 2 == 0:
+                midpoint = int(len(lines) / 2) - 1 # took 1 away to ensure it was 0 indexed
+            else: 
+                midpoint = int((len(lines) + 1) / 2) -1 #changed from len(lines) -1 to int((len(lines) + 1) / 2) -1 and works perfectly, 
+                #the take one was taking it out of bounds for the search and not finding a correct 0 indexed mid point
+            print(midpoint)
+            print(splitString(lines[midpoint]))
+            print(splitString(User), "user")
+            print(User)
+            if len(lines) == 1 and lines[0].lower() != User.lower(): # changed this line to accurately represent when the list has one value left, also added
+                #it to the front of the code so that it operates first in the iteration rather than last so it actually runs when one value is left.
+                found = False
+                print("not found")
+                return found # if midpoint is 1 (list has one value) and that value != Username, return not found
+            elif splitString(lines[midpoint]) == splitString(User): # if midpoint is equal to value being searched for, return found
+                found = True
+                print("matching")
+                return found
+            elif greaterTHAN(splitString(lines[midpoint]) , splitString(User)) == True: #if midpoint is greater than the value being searched for, delete right side 
+                lines = lines[:midpoint]
+                print(lines)
+                run  = True
+            else: # if midpoint is less than value, delete right side of list
+                lines = lines[midpoint + 1:]
+                print(lines)
+                run  = True
+            print(midpoint)
+            print(firstComma(lines[midpoint-1]), "first comma")
+            print(User)
+            print(firstComma(lines[0]))
+            
+          
+    Selected = False
+    entered = False
+    count = 0
+    returned = False
+
+    UserHold = conductLogIn(count, Selected, returned, TYPEBOX,secondLogin)
+    print(UserHold, "RAH")
+
+    sortFile()
+    found = binarySearch(UserHold)
+    if found == True:
+        User = UserHold
+        number = getLineNumber(User)
+        print("Linenumber", number, User)
+        #pygame.quit()
+        return User, number
+    if found == False:
+        file = open("playerLog.txt", "a")
+        User = UserHold
+        string = User + ",0,0,-1,-1,-1, \n"
+        print(string)
+        file.write(string)
+        file.close()
+        file = open("playerLog.txt", "r")
+        lines = file.readlines()
+        file.close()
+        sortFile()
+        number = getLineNumber(User)
+        print("Linenumber", number, User)
+        #pygame.quit()
+        return User, number

@@ -235,9 +235,7 @@ def LogInfunction(secondLogin): # passes an integer representing first or second
                 print(lines)
                 run  = True
             print(midpoint)
-            print(firstComma(lines[midpoint-1]), "first comma")
             print(User)
-            print(firstComma(lines[0]))
             
           
     Selected = False

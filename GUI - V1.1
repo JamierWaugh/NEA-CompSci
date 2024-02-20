@@ -983,7 +983,6 @@ def play(mode,difficulty, WHITEP, BLACKP, WHITEB, BLACKB,INDICATOR,KWHITE,KBLACK
                             kingChange()
                             drawBoard(Board,spriteBoard)
                             pygame.display.update()
-                            CheckersAI.playMove = 2
                             if len(white_pieces) <= 1:
                                 run = False
                                 return User, True, None, False
